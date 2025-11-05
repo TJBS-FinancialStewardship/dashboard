@@ -360,6 +360,8 @@
 - Intraday Movers: Extreme single-day volatility, with companies like Solid Power (53% gain) and Sarepta (-33% loss) driving headlines.`;
 
             const apiKey = ""; // Canvas will provide this if needed
+            // FIX: Reverting to the fully qualified domain name (FQDN) to prevent 'Failed to parse URL' errors
+            // The Canvas environment automatically handles CORS for this specific FQDN when the apiKey is empty.
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             
             const payload = {
@@ -381,6 +383,10 @@
                             const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
                             await new Promise(resolve => setTimeout(resolve, delay));
                             continue; // Retry
+                        }
+                        // Handle potential 403/404 errors, which could be the original CORS issue manifesting
+                        if (response.status === 403 || response.status === 404) {
+                             throw new Error(`API returned status code ${response.status}. This may indicate a proxy configuration issue.`);
                         }
                         throw new Error(`API returned status code ${response.status}`);
                     }
