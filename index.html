@@ -27,7 +27,7 @@
         }
     </script>
     <style>
-        /* Custom scrollbar for news feeds and chat */
+        /* Custom scrollbar for news feeds and calendar */
         .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
         }
@@ -167,40 +167,7 @@
         </div>
     </div>
 
-    <!-- 5. AI Assistant Chat Widget -->
-
-    <!-- Chat Floating Button -->
-    <button id="chat-button" class="fixed bottom-6 right-6 p-4 rounded-full bg-ai-blue text-white shadow-xl hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 z-50">
-        <!-- Chat Icon -->
-        <svg id="chat-icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-        <!-- Close Icon -->
-        <svg id="chat-icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-    </button>
-
-    <!-- Chat Flyout Panel -->
-    <div id="chat-panel" class="fixed bottom-20 right-6 w-80 h-[450px] max-h-[80vh] bg-white rounded-xl shadow-2xl flex flex-col transition-transform duration-300 transform translate-x-full z-50 border border-gray-200 overflow-hidden">
-        
-        <!-- Chat Header -->
-        <div class="p-3 bg-ai-blue text-white rounded-t-xl shadow-md flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-3 3M15 10v13l3-3M3 6h18M3 10h18M3 14h18M3 18h18"></path></svg>
-            <span class="font-bold text-sm">Financial AI Assistant</span>
-        </div>
-
-        <!-- Chat Messages Container -->
-        <div id="chat-messages" class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar">
-            <!-- Messages will be populated here -->
-        </div>
-
-        <!-- Chat Input Area -->
-        <div class="p-4 border-t border-gray-100 bg-gray-50 flex items-center">
-            <input type="text" id="chat-input" placeholder="Ask a financial question..." class="flex-grow p-2 text-sm border border-gray-300 rounded-l-lg focus:outline-none focus:border-ai-blue" autocomplete="off">
-            <button id="chat-send-button" class="p-2 bg-ai-blue text-white rounded-r-lg hover:bg-blue-700 transition duration-150 focus:outline-none disabled:opacity-50" disabled>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-            </button>
-        </div>
-    </div>
-
-
+    <!-- START JAVASCRIPT -->
     <script>
         // --- 1. MOCK DATA AND CONFIGURATION ---
 
@@ -237,7 +204,7 @@
                 { symbol: 'PFE', name: 'Pfizer Inc.', change: -5.00, price: 24.00, marketCap: 150.0 },
                 { symbol: 'INTC', name: 'Intel Corp.', change: -4.50, price: 37.00, marketCap: 155.0 },
             ],
-            // Added: Mock data for the news feed to ensure rendering works
+            // Mock data for the news feed
             news: [
                 { source: 'Fox Business', title: 'Fed Signals Rate Hike Pause, But Warns of Inflation Resilience', url: 'https://www.foxbusiness.com/markets/fed-signals-rate-hike-pause', color: 'fb-brand', time: '5 mins ago' },
                 { source: 'Yahoo Finance', title: 'Tech Stocks Dive Amidst AI Valuation Fears; NVDA Down 7%', url: 'https://finance.yahoo.com/news/tech-stocks-dive-ai-valuation-140000305.html', color: 'yf-brand', time: '15 mins ago' },
@@ -267,17 +234,7 @@
             ]
         };
 
-        // --- 2. GLOBAL CHAT STATE ---
-        let chatHistory = [
-            { 
-                role: "model", 
-                parts: [{ text: "Hello! I'm your Financial AI Assistant. I can help with market analysis and general finance questions. **I am not authorized to give financial advice.** How can I help?" }] 
-            }
-        ];
-        let isChatOpen = false;
-
-
-        // --- 3. API AND HELPER FUNCTIONS ---
+        // --- 2. API AND HELPER FUNCTIONS ---
 
         /**
          * Converts market cap in Billions to a readable string.
@@ -384,7 +341,7 @@
         };
 
         /**
-         * Mocks the AI summary generation using the Gemini API.
+         * Generates the AI market summary using the Gemini API (non-conversational).
          * Includes exponential backoff for robustness.
          */
         const generateAISummary = async (maxRetries = 5) => {
@@ -444,229 +401,96 @@
             }
         };
 
-        // --- 4. CHAT FUNCTIONALITY ---
-        
-        /**
-         * Toggles the visibility of the chat panel.
-         */
-        const toggleChatPanel = () => {
-            const chatPanel = document.getElementById('chat-panel');
-            const openIcon = document.getElementById('chat-icon-open');
-            const closeIcon = document.getElementById('chat-icon-close');
+        // --- 3. DASHBOARD DATA LOADING & RENDERING ---
 
-            isChatOpen = !isChatOpen;
-            
-            if (isChatOpen) {
-                chatPanel.classList.remove('translate-x-full');
-                openIcon.classList.add('hidden');
-                closeIcon.classList.remove('hidden');
-            } else {
-                chatPanel.classList.add('translate-x-full');
-                openIcon.classList.remove('hidden');
-                closeIcon.classList.add('hidden');
+        /**
+         * Helper to render lists of stock movers (Gainers/Losers).
+         */
+        const renderMoverList = (listId, data) => {
+            const listElement = document.getElementById(listId);
+            if (data.length === 0) {
+                listElement.innerHTML = `<p class="text-sm text-gray-500 py-2">No movers found matching criteria.</p>`;
+                return;
             }
-            renderChat(); // Ensure chat history is displayed when opened
+            listElement.innerHTML = data.map(renderMoverItem).join('');
         };
 
         /**
-         * Renders all messages from the chatHistory to the chat interface.
+         * Helper to render the news feed.
          */
-        const renderChat = () => {
-            const messagesDiv = document.getElementById('chat-messages');
-            messagesDiv.innerHTML = chatHistory.map(msg => {
-                const isUser = msg.role === 'user';
-                const bgColor = isUser ? 'bg-ai-blue/10' : 'bg-gray-100';
-                const alignClass = isUser ? 'self-end' : 'self-start';
-                const textColor = isUser ? 'text-gray-900' : 'text-gray-800';
-                const content = msg.parts[0].text.replace(/\n/g, '<br>');
-
-                return `
-                    <div class="max-w-[85%] ${alignClass} ${textColor} text-sm p-3 rounded-lg ${bgColor} shadow-sm">
-                        ${content}
-                    </div>
-                `;
-            }).join('');
-
-            // Scroll to the bottom of the chat window
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        };
-
-        /**
-         * Handles sending the user's message and fetching the AI response.
-         */
-        const sendChatMessage = async () => {
-            const inputElement = document.getElementById('chat-input');
-            const sendButton = document.getElementById('chat-send-button');
-            const userMessage = inputElement.value.trim();
-
-            if (!userMessage) return;
-
-            // 1. Add user message to history and clear input
-            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
-            inputElement.value = '';
-            sendButton.disabled = true;
-
-            renderChat(); // Show user message
-
-            const messagesDiv = document.getElementById('chat-messages');
-
-            // Add loading indicator for model response
-            const loadingHtml = `
-                <div id="model-loading" class="max-w-[85%] self-start text-gray-800 text-sm p-3 rounded-lg bg-gray-100 shadow-sm flex items-center space-x-2">
-                    <div class="w-4 h-4 border-2 border-transparent border-t-ai-blue rounded-full spinner"></div>
-                    <span>AI is typing...</span>
-                </div>
-            `;
-            messagesDiv.insertAdjacentHTML('beforeend', loadingHtml);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-            const payload = {
-                contents: chatHistory, // Send the full history for context
-                tools: [{ "google_search": {} }],
-                systemInstruction: { parts: [{ text: "You are a concise, helpful financial assistant. Answer user questions about the market, stocks, and finance using real-time information. Always state that you are not giving investment advice." }] },
-            };
-
-            // Simple retry loop for chat, max 3 retries
-            for (let attempt = 0; attempt < 3; attempt++) {
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`API returned status ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    const modelText = result.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, I could not generate a response at this time.";
-
-                    // Remove loading indicator
-                    document.getElementById('model-loading')?.remove();
-
-                    chatHistory.push({ role: "model", parts: [{ text: modelText }] });
-                    renderChat();
-                    break; // Success, exit retry loop
-
-                } catch (error) {
-                    console.error(`Chat attempt ${attempt + 1} failed:`, error);
-                    if (attempt === 2) {
-                        // Final attempt failed
-                        document.getElementById('model-loading')?.remove();
-                        const errorMsg = "I'm having trouble connecting to the network right now. Please try again in a moment.";
-                        chatHistory.push({ role: "model", parts: [{ text: errorMsg }] });
-                        renderChat();
-                    } else {
-                        // Exponential backoff delay for chat
-                        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
-                    }
-                }
+        const renderNewsList = (data) => {
+            const listElement = document.getElementById('news-feed');
+            if (data.length === 0) {
+                listElement.innerHTML = `<p class="text-sm text-gray-500 py-3">No recent headlines found.</p>`;
+                return;
             }
-
-            sendButton.disabled = false;
-            inputElement.focus();
-        };
-
-        // --- 5. RENDER FUNCTIONS (FOR MOCK DATA) ---
-
-        const renderMovers = (data) => {
-            document.getElementById('gainers-list').innerHTML = data.gainers.map(renderMoverItem).join('');
-            document.getElementById('losers-list').innerHTML = data.losers.map(renderMoverItem).join('');
-        };
-
-        const renderNews = (data) => {
-            // Check for valid data before rendering
-            if (Array.isArray(data.news) && data.news.length > 0) {
-                document.getElementById('news-feed').innerHTML = data.news.map(renderNewsItem).join('');
-            } else {
-                document.getElementById('news-feed').innerHTML = '<p class="text-sm text-gray-500 py-3">No high-priority headlines available.</p>';
-            }
-        };
-
-        const renderCalendars = (data) => {
-            document.getElementById('economic-calendar').innerHTML = data.economicCalendar.map(item => renderCalendarItem(item, 'economic')).join('');
-            document.getElementById('earnings-calendar').innerHTML = data.earningsCalendar.map(item => renderCalendarItem(item, 'earnings')).join('');
-        };
-
-        const updateLastUpdated = () => {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-            document.getElementById('last-updated').textContent = `Last Update: ${timeString}`;
+            listElement.innerHTML = data.map(renderNewsItem).join('');
         };
 
         /**
-         * Toggles the loading state of the dashboard and refresh button.
+         * Helper to render calendar events.
          */
-        const toggleLoadingState = (isLoading) => {
+        const renderCalendar = (listId, data, type) => {
+            const listElement = document.getElementById(listId);
+            if (data.length === 0) {
+                listElement.innerHTML = `<p class="text-sm text-gray-500 py-2">No upcoming events listed.</p>`;
+                return;
+            }
+            listElement.innerHTML = data.map(item => renderCalendarItem(item, type)).join('');
+        };
+
+        /**
+         * Function to load and render all dashboard components.
+         */
+        const loadData = async () => {
             const refreshButton = document.getElementById('refresh-button');
-            const refreshIcon = document.getElementById('refresh-icon');
-            const loadingSpinner = document.getElementById('loading-spinner');
+            const spinner = document.getElementById('loading-spinner');
+            const icon = document.getElementById('refresh-icon');
 
-            refreshButton.disabled = isLoading;
-            if (isLoading) {
-                refreshIcon.classList.add('hidden');
-                loadingSpinner.classList.remove('hidden');
-                refreshButton.querySelector('span').textContent = 'Loading...';
-            } else {
-                loadingSpinner.classList.add('hidden');
-                refreshIcon.classList.remove('hidden');
-                refreshButton.querySelector('span').textContent = 'Refresh';
+            refreshButton.disabled = true;
+            icon.classList.add('hidden');
+            spinner.classList.remove('hidden');
+
+            try {
+                // Update Market Snapshot (API Call)
+                await generateAISummary(); 
+
+                // Update Market Movers (Mock Data)
+                renderMoverList('gainers-list', MOCK_DATA.gainers.slice(0, 15));
+                renderMoverList('losers-list', MOCK_DATA.losers.slice(0, 15));
+
+                // Update News Feed (Mock Data)
+                renderNewsList(MOCK_DATA.news);
+                
+                // Update Calendars (Mock Data)
+                renderCalendar('economic-calendar', MOCK_DATA.economicCalendar, 'economic');
+                renderCalendar('earnings-calendar', MOCK_DATA.earningsCalendar, 'earnings');
+
+                // Update timestamp
+                document.getElementById('last-updated').textContent = `Last Update: ${new Date().toLocaleTimeString()}`;
+                
+            } catch (e) {
+                console.error("Dashboard data failed to load:", e);
+                document.getElementById('ai-summary-content').innerHTML = `<p class="text-market-red font-semibold">Error loading critical data. Please try again.</p>`;
+            } finally {
+                refreshButton.disabled = false;
+                icon.classList.remove('hidden');
+                spinner.classList.add('hidden');
             }
         };
 
         /**
-         * Main function to initialize and refresh the entire dashboard.
+         * Function to set up event listeners.
          */
-        const initDashboard = async () => {
-            toggleLoadingState(true);
-
-            // 1. Generate AI Summary (API call - this is where the fix takes effect)
-            await generateAISummary();
-
-            // 2. Render Mock Data sections
-            renderMovers(MOCK_DATA);
-            renderNews(MOCK_DATA);
-            renderCalendars(MOCK_DATA);
-
-            // 3. Update time and complete loading state
-            updateLastUpdated();
-            toggleLoadingState(false);
+        const setupEventListeners = () => {
+            document.getElementById('refresh-button').addEventListener('click', loadData);
         };
 
-
-        // --- 6. EVENT LISTENERS AND INITIALIZATION ---
-        window.onload = () => {
-            // Initial dashboard load
-            initDashboard();
-            renderChat(); // Render initial chat message
-
-            // Setup Dashboard Refresh Button
-            document.getElementById('refresh-button').addEventListener('click', initDashboard);
-
-            // Setup Chat Toggler
-            document.getElementById('chat-button').addEventListener('click', toggleChatPanel);
-
-            // Setup Chat Input
-            const chatInput = document.getElementById('chat-input');
-            const chatSendButton = document.getElementById('chat-send-button');
-
-            chatInput.addEventListener('input', () => {
-                chatSendButton.disabled = chatInput.value.trim() === '';
-            });
-
-            chatInput.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter' && !chatSendButton.disabled) {
-                    sendChatMessage();
-                }
-            });
-
-            chatSendButton.addEventListener('click', sendChatMessage);
-        };
-
+        // Initialize the dashboard on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            setupEventListeners();
+        });
     </script>
 </body>
 </html>
