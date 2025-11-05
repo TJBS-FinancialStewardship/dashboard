@@ -27,7 +27,7 @@
         }
     </script>
     <style>
-        /* Custom scrollbar for news feeds and chat */
+        /* Custom scrollbar for news feeds */
         .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
         }
@@ -91,7 +91,7 @@
                 </div>
             </section>
 
-            <!-- 2. Financial News Feed (Full Width) -->
+            <!-- 2. Financial News Feed (Full Width, NEW LIST DESIGN) -->
             <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-full">
                 <h2 class="text-xl font-bold text-gray-900 mb-2 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v2m-7 13h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v2M9 13h6"></path></svg>
@@ -99,6 +99,7 @@
                 </h2>
                 <p class="text-sm text-gray-500 mb-4">High-priority headlines from preferred sources.</p>
                 
+                <!-- Updated: Removed space-y-4 and added divide-y for a clean list look -->
                 <div id="news-feed" class="divide-y divide-gray-100 max-h-[85vh] custom-scrollbar overflow-y-auto pr-2">
                     <!-- News items will be populated here -->
                     <p class="text-sm text-gray-500 py-3">Loading news...</p>
@@ -153,7 +154,7 @@
                         <h2 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2h-1M4 14v1a3 3 0 003 3h5m0-9v6"></path></svg>
                             Upcoming Earnings (Mid/Large Cap)
-                        </h2 >
+                        </h2>
                         <div id="earnings-calendar" class="space-y-3 max-h-96 custom-scrollbar overflow-y-auto pr-2">
                             <!-- Earnings will be populated here -->
                             <p class="text-sm text-gray-500">Loading data...</p>
@@ -166,40 +167,6 @@
         </div>
     </div>
 
-    <!-- AI Assistant Chat Widget HTML -->
-    <div id="chat-panel" class="fixed right-4 bottom-4 w-11/12 max-w-sm h-[70vh] max-h-[600px] bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col transform translate-x-[110%] transition-transform duration-300 ease-in-out z-40">
-        <!-- Chat Header -->
-        <header class="p-4 bg-ai-blue text-white rounded-t-xl flex justify-between items-center shadow-md">
-            <h3 class="text-lg font-bold">AI Financial Assistant</h3>
-            <button id="close-chat-button" class="text-white hover:text-gray-200 transition" onclick="toggleChatPanel()">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </header>
-
-        <!-- Chat Messages -->
-        <div id="chat-messages" class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar">
-            <!-- Messages will be injected here -->
-        </div>
-
-        <!-- Chat Input -->
-        <div class="p-4 border-t border-gray-200">
-            <div id="chat-loading-indicator" class="hidden text-sm text-ai-blue mb-2 flex items-center space-x-2">
-                <div class="w-3 h-3 border-2 border-transparent border-t-ai-blue rounded-full spinner"></div>
-                <span>Assistant is typing...</span>
-            </div>
-            <div class="flex space-x-2">
-                <input type="text" id="chat-input" placeholder="Ask about stocks, events, or strategy..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ai-blue" />
-                <button id="chat-send-button" disabled class="px-4 py-3 bg-ai-blue text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chat Toggle Button -->
-    <button id="chat-button" class="fixed right-4 bottom-4 md:right-8 md:bottom-8 p-4 bg-ai-blue text-white rounded-full shadow-lg hover:bg-blue-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-blue-300 z-50">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m-4 8h10a2 2 0 002-2V9a2 2 0 00-2-2H7a2 2 0 00-2 2v2a2 2 0 002 2h4l-4 4v-4z"></path></svg>
-    </button>
 
     <script>
         // --- 1. MOCK DATA AND CONFIGURATION ---
@@ -237,6 +204,7 @@
                 { symbol: 'PFE', name: 'Pfizer Inc.', change: -5.00, price: 24.00, marketCap: 150.0 },
                 { symbol: 'INTC', name: 'Intel Corp.', change: -4.50, price: 37.00, marketCap: 155.0 },
             ],
+            // Added: Mock data for the news feed to ensure rendering works
             news: [
                 { source: 'Fox Business', title: 'Fed Signals Rate Hike Pause, But Warns of Inflation Resilience', url: 'https://www.foxbusiness.com/markets/fed-signals-rate-hike-pause', color: 'fb-brand', time: '5 mins ago' },
                 { source: 'Yahoo Finance', title: 'Tech Stocks Dive Amidst AI Valuation Fears; NVDA Down 7%', url: 'https://finance.yahoo.com/news/tech-stocks-dive-ai-valuation-140000305.html', color: 'yf-brand', time: '15 mins ago' },
@@ -266,11 +234,7 @@
             ]
         };
 
-        // --- 2. GLOBAL CHAT STATE AND HELPERS ---
-        let isChatOpen = false;
-        let chatHistory = [
-            { role: "assistant", text: "Hello! I am your AI Financial Assistant. I can help you understand the market snapshot, explain economic events, or summarize a specific stock mover. What would you like to know?" }
-        ];
+        // --- 2. API AND HELPER FUNCTIONS ---
 
         /**
          * Converts market cap in Billions to a readable string.
@@ -281,18 +245,6 @@
             if (capB >= 1000) return `$${(capB / 1000).toFixed(1)}T`;
             return `$${capB.toFixed(1)}B`;
         };
-
-        /**
-         * Helper to scroll the chat box to the bottom.
-         */
-        const scrollToBottom = (elementId) => {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.scrollTop = element.scrollHeight;
-            }
-        };
-
-        // --- 3. RENDER FUNCTIONS (UI) ---
 
         /**
          * Renders an individual stock mover item, now clickable.
@@ -387,32 +339,9 @@
                 </div>
             `;
         };
-        
-        const renderChat = () => {
-            const messagesContainer = document.getElementById('chat-messages');
-            messagesContainer.innerHTML = chatHistory.map(message => {
-                const isUser = message.role === 'user';
-                const bgColor = isUser ? 'bg-gray-100' : 'bg-ai-blue text-white';
-                const alignment = isUser ? 'self-end text-right' : 'self-start text-left';
-                const roleText = isUser ? 'You' : 'Assistant';
-                const avatar = isUser ? '👤' : '🤖';
-
-                return `
-                    <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
-                        <div class="max-w-[80%] p-3 rounded-xl ${bgColor} shadow-sm ${isUser ? 'rounded-br-none' : 'rounded-bl-none'}">
-                            <p class="text-xs font-bold mb-1 ${isUser ? 'text-gray-600' : 'text-blue-200'}">${avatar} ${roleText}</p>
-                            <p class="text-sm">${message.text}</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            scrollToBottom('chat-messages');
-        };
-
-        // --- 4. API FUNCTIONS (GEMINI) ---
 
         /**
-         * Generates the AI summary using the Gemini API.
+         * Mocks the AI summary generation using the Gemini API.
          * Includes exponential backoff for robustness.
          */
         const generateAISummary = async (maxRetries = 5) => {
@@ -422,16 +351,11 @@
                 <span>Analyzing market data...</span>
             </div>`;
 
-            const systemPrompt = "You are a specialized Financial Market Intelligence AI. Provide a concise, single-paragraph summary of today's U.S. stock market activity. Highlight the most recent high-impact economic data (like CPI, NFP, Fed decisions), key sector movements (e.g., Tech/AI volatility), and notable intraday stock movers. Ensure the tone is objective and analytical.";
-            // The prompt uses mock data details to ensure a consistent, relevant summary even though it's mock
-            const userQuery = `Generate a current market summary based on the following key points:
-- Recent Economic Data: CPI YoY is at 3.0%. Nonfarm Payrolls (NFP) recently missed forecast (Actual 22K vs. Forecast 75K).
-- Central Bank Sentiment: Fed officials indicate a 'higher-for-longer' interest rate outlook, dampening rate cut hopes.
-- Top News Themes: Heavy volatility in mega-cap AI stocks (Nvidia, Palantir) due to valuation concerns. Major M&A activity: Kimberly-Clark acquiring Kenvue.
-- Intraday Movers: Extreme single-day volatility, with companies like Solid Power (53% gain) and Sarepta (-33% loss) driving headlines.`;
+            const systemPrompt = "You are a specialized Financial Market Intelligence AI. Provide a concise, single-paragraph summary of today's U.S. stock market activity. Highlight the most recent high-impact financial news, key sector movements (e.g., Tech/AI volatility), and notable intraday stock movers. Ensure the tone is objective and analytical.";
+            // Streamlined query to rely heavily on Google Search grounding for real-time information
+            const userQuery = "Generate a current, real-time market summary. Analyze the most recent high-impact financial news and economic calendar events, major sector movements, and significant single-stock movers today. Focus on synthesizing data from Google Search to provide an accurate, current snapshot.";
 
             const apiKey = ""; // Canvas will provide this if needed
-            // FIX: Using the FQDN for stability against the 'Failed to parse URL' error
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             
             const payload = {
@@ -452,7 +376,7 @@
                         if (response.status === 429 && attempt < maxRetries - 1) {
                             const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
                             await new Promise(resolve => setTimeout(resolve, delay));
-                            continue;
+                            continue; // Retry
                         }
                         throw new Error(`API returned status code ${response.status}`);
                     }
@@ -460,84 +384,21 @@
                     const result = await response.json();
                     const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Error: Could not retrieve AI summary content.";
                     
+                    // Display the successful summary
                     contentDiv.innerHTML = `<p class="text-gray-700 leading-relaxed">${text}</p>`;
-                    return;
+                    return; // Exit function on success
 
                 } catch (error) {
-                    console.error(`Attempt ${attempt + 1} failed (Summary):`, error);
+                    console.error(`Attempt ${attempt + 1} failed:`, error);
                     if (attempt === maxRetries - 1) {
+                        // Display final error message
                         contentDiv.innerHTML = `<p class="text-market-red font-semibold">Error: Failed to fetch AI Market Snapshot after ${maxRetries} attempts. Check console for details.</p>`;
                     }
                 }
             }
         };
 
-        /**
-         * Sends a message to the AI Assistant and gets a response.
-         */
-        const sendChatMessage = async () => {
-            const input = document.getElementById('chat-input');
-            const button = document.getElementById('chat-send-button');
-            const loadingIndicator = document.getElementById('chat-loading-indicator');
-
-            const userText = input.value.trim();
-            if (!userText) return;
-
-            // 1. Update UI with user message
-            chatHistory.push({ role: "user", text: userText });
-            input.value = '';
-            button.disabled = true;
-            loadingIndicator.classList.remove('hidden');
-            renderChat();
-
-            // 2. Prepare API call
-            const promptContext = chatHistory.map(m => ({
-                role: m.role,
-                parts: [{ text: m.text }]
-            }));
-
-            const systemPrompt = "You are a concise financial assistant. Answer user questions about financial markets, stocks, and economic events based on the provided data or general financial knowledge. If asked about real-time data or prices not explicitly in the dashboard, use Google Search grounding. Keep your responses brief (2-3 sentences max).";
-            
-            const apiKey = ""; 
-            // FIX: Using the FQDN for stability against the 'Failed to parse URL' error
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-            const payload = {
-                contents: promptContext,
-                tools: [{ "google_search": {} }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-            };
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API returned status code ${response.status}`);
-                }
-
-                const result = await response.json();
-                const assistantText = result.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, I could not process that request.";
-                
-                // 3. Update UI with assistant message
-                chatHistory.push({ role: "assistant", text: assistantText });
-
-            } catch (error) {
-                console.error("Chat API Error:", error);
-                chatHistory.push({ role: "assistant", text: "I'm having trouble connecting to the intelligence network right now. Please try again later." });
-            } finally {
-                // 4. Reset UI
-                loadingIndicator.classList.add('hidden');
-                button.disabled = input.value.trim() === '';
-                renderChat();
-            }
-        };
-
-
-        // --- 5. DASHBOARD RENDER FUNCTIONS ---
+        // --- 3. RENDER FUNCTIONS (FOR MOCK DATA) ---
 
         const renderMovers = (data) => {
             document.getElementById('gainers-list').innerHTML = data.gainers.map(renderMoverItem).join('');
@@ -545,6 +406,7 @@
         };
 
         const renderNews = (data) => {
+            // Check for valid data before rendering
             if (Array.isArray(data.news) && data.news.length > 0) {
                 document.getElementById('news-feed').innerHTML = data.news.map(renderNewsItem).join('');
             } else {
@@ -584,27 +446,12 @@
         };
 
         /**
-         * Toggles the visibility of the chat panel.
-         */
-        const toggleChatPanel = () => {
-            const chatPanel = document.getElementById('chat-panel');
-            isChatOpen = !isChatOpen;
-            chatPanel.style.transform = isChatOpen ? 'translateX(0)' : 'translateX(110%)';
-            if (isChatOpen) {
-                scrollToBottom('chat-messages');
-                document.getElementById('chat-input').focus();
-            }
-        };
-
-
-        /**
          * Main function to initialize and refresh the entire dashboard.
          */
         const initDashboard = async () => {
             toggleLoadingState(true);
 
-            // 1. Generate AI Summary (API call)
-            // Using await here ensures the loading spinner stays until the summary is complete
+            // 1. Generate AI Summary (API call - designed for HTTPS environments)
             await generateAISummary();
 
             // 2. Render Mock Data sections
@@ -618,35 +465,15 @@
         };
 
 
-        // --- 6. EVENT LISTENERS AND INITIALIZATION ---
+        // --- 4. EVENT LISTENERS AND INITIALIZATION ---
         window.onload = () => {
             // Initial dashboard load
             initDashboard();
-            renderChat(); // Render initial chat message
 
             // Setup Dashboard Refresh Button
             document.getElementById('refresh-button').addEventListener('click', initDashboard);
 
-            // Setup Chat Toggler
-            document.getElementById('chat-button').addEventListener('click', toggleChatPanel);
-            document.getElementById('close-chat-button').addEventListener('click', toggleChatPanel);
-
-            // Setup Chat Input
-            const chatInput = document.getElementById('chat-input');
-            const chatSendButton = document.getElementById('chat-send-button');
-
-            chatInput.addEventListener('input', () => {
-                chatSendButton.disabled = chatInput.value.trim() === '';
-            });
-
-            chatInput.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter' && !chatSendButton.disabled) {
-                    event.preventDefault(); // Prevent new line in input
-                    sendChatMessage();
-                }
-            });
-
-            chatSendButton.addEventListener('click', sendChatMessage);
+            // Removed all chat-related event listeners and functions
         };
 
     </script>
