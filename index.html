@@ -27,7 +27,7 @@
         }
     </script>
     <style>
-        /* Custom scrollbar for news feeds and calendar */
+        /* Custom scrollbar for news feeds */
         .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
         }
@@ -77,7 +77,7 @@
             </div>
         </header>
 
-        <!-- Grid Layout for Main Content - Now stacked in a single column -->
+        <!-- Grid Layout for Main Content -->
         <div class="grid grid-cols-1 gap-6">
 
             <!-- 1. AI-Generated Market Snapshot (Full Width) -->
@@ -99,7 +99,6 @@
                 </h2>
                 <p class="text-sm text-gray-500 mb-4">High-priority headlines from preferred sources.</p>
                 
-                <!-- Updated: Removed space-y-4 and added divide-y for a clean list look -->
                 <div id="news-feed" class="divide-y divide-gray-100 max-h-[85vh] custom-scrollbar overflow-y-auto pr-2">
                     <!-- News items will be populated here -->
                     <p class="text-sm text-gray-500 py-3">Loading news...</p>
@@ -167,7 +166,8 @@
         </div>
     </div>
 
-    <!-- START JAVASCRIPT -->
+    <!-- Removed: AI Assistant Chat Widget HTML -->
+
     <script>
         // --- 1. MOCK DATA AND CONFIGURATION ---
 
@@ -204,7 +204,6 @@
                 { symbol: 'PFE', name: 'Pfizer Inc.', change: -5.00, price: 24.00, marketCap: 150.0 },
                 { symbol: 'INTC', name: 'Intel Corp.', change: -4.50, price: 37.00, marketCap: 155.0 },
             ],
-            // Mock data for the news feed
             news: [
                 { source: 'Fox Business', title: 'Fed Signals Rate Hike Pause, But Warns of Inflation Resilience', url: 'https://www.foxbusiness.com/markets/fed-signals-rate-hike-pause', color: 'fb-brand', time: '5 mins ago' },
                 { source: 'Yahoo Finance', title: 'Tech Stocks Dive Amidst AI Valuation Fears; NVDA Down 7%', url: 'https://finance.yahoo.com/news/tech-stocks-dive-ai-valuation-140000305.html', color: 'yf-brand', time: '15 mins ago' },
@@ -233,6 +232,8 @@
                 { date: 'Dec 2 (Mon)', time: 'Before Market Open', company: 'Lowe\'s Cos', ticker: 'LOW', estimate: '$3.01' },
             ]
         };
+
+        // Removed: Global Chat State (chatHistory, isChatOpen)
 
         // --- 2. API AND HELPER FUNCTIONS ---
 
@@ -341,7 +342,7 @@
         };
 
         /**
-         * Generates the AI market summary using the Gemini API (non-conversational).
+         * Generates the AI summary using the Gemini API.
          * Includes exponential backoff for robustness.
          */
         const generateAISummary = async (maxRetries = 5) => {
@@ -401,96 +402,86 @@
             }
         };
 
-        // --- 3. DASHBOARD DATA LOADING & RENDERING ---
+        // Removed: CHAT FUNCTIONALITY (toggleChatPanel, renderChat, sendChatMessage)
+        
+        // --- 3. RENDER FUNCTIONS (FOR MOCK DATA) ---
 
-        /**
-         * Helper to render lists of stock movers (Gainers/Losers).
-         */
-        const renderMoverList = (listId, data) => {
-            const listElement = document.getElementById(listId);
-            if (data.length === 0) {
-                listElement.innerHTML = `<p class="text-sm text-gray-500 py-2">No movers found matching criteria.</p>`;
-                return;
+        const renderMovers = (data) => {
+            document.getElementById('gainers-list').innerHTML = data.gainers.map(renderMoverItem).join('');
+            document.getElementById('losers-list').innerHTML = data.losers.map(renderMoverItem).join('');
+        };
+
+        const renderNews = (data) => {
+            // Check for valid data before rendering
+            if (Array.isArray(data.news) && data.news.length > 0) {
+                document.getElementById('news-feed').innerHTML = data.news.map(renderNewsItem).join('');
+            } else {
+                document.getElementById('news-feed').innerHTML = '<p class="text-sm text-gray-500 py-3">No high-priority headlines available.</p>';
             }
-            listElement.innerHTML = data.map(renderMoverItem).join('');
+        };
+
+        const renderCalendars = (data) => {
+            document.getElementById('economic-calendar').innerHTML = data.economicCalendar.map(item => renderCalendarItem(item, 'economic')).join('');
+            document.getElementById('earnings-calendar').innerHTML = data.earningsCalendar.map(item => renderCalendarItem(item, 'earnings')).join('');
+        };
+
+        const updateLastUpdated = () => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            document.getElementById('last-updated').textContent = `Last Update: ${timeString}`;
         };
 
         /**
-         * Helper to render the news feed.
+         * Toggles the loading state of the dashboard and refresh button.
          */
-        const renderNewsList = (data) => {
-            const listElement = document.getElementById('news-feed');
-            if (data.length === 0) {
-                listElement.innerHTML = `<p class="text-sm text-gray-500 py-3">No recent headlines found.</p>`;
-                return;
-            }
-            listElement.innerHTML = data.map(renderNewsItem).join('');
-        };
-
-        /**
-         * Helper to render calendar events.
-         */
-        const renderCalendar = (listId, data, type) => {
-            const listElement = document.getElementById(listId);
-            if (data.length === 0) {
-                listElement.innerHTML = `<p class="text-sm text-gray-500 py-2">No upcoming events listed.</p>`;
-                return;
-            }
-            listElement.innerHTML = data.map(item => renderCalendarItem(item, type)).join('');
-        };
-
-        /**
-         * Function to load and render all dashboard components.
-         */
-        const loadData = async () => {
+        const toggleLoadingState = (isLoading) => {
             const refreshButton = document.getElementById('refresh-button');
-            const spinner = document.getElementById('loading-spinner');
-            const icon = document.getElementById('refresh-icon');
+            const refreshIcon = document.getElementById('refresh-icon');
+            const loadingSpinner = document.getElementById('loading-spinner');
 
-            refreshButton.disabled = true;
-            icon.classList.add('hidden');
-            spinner.classList.remove('hidden');
-
-            try {
-                // Update Market Snapshot (API Call)
-                await generateAISummary(); 
-
-                // Update Market Movers (Mock Data)
-                renderMoverList('gainers-list', MOCK_DATA.gainers.slice(0, 15));
-                renderMoverList('losers-list', MOCK_DATA.losers.slice(0, 15));
-
-                // Update News Feed (Mock Data)
-                renderNewsList(MOCK_DATA.news);
-                
-                // Update Calendars (Mock Data)
-                renderCalendar('economic-calendar', MOCK_DATA.economicCalendar, 'economic');
-                renderCalendar('earnings-calendar', MOCK_DATA.earningsCalendar, 'earnings');
-
-                // Update timestamp
-                document.getElementById('last-updated').textContent = `Last Update: ${new Date().toLocaleTimeString()}`;
-                
-            } catch (e) {
-                console.error("Dashboard data failed to load:", e);
-                document.getElementById('ai-summary-content').innerHTML = `<p class="text-market-red font-semibold">Error loading critical data. Please try again.</p>`;
-            } finally {
-                refreshButton.disabled = false;
-                icon.classList.remove('hidden');
-                spinner.classList.add('hidden');
+            refreshButton.disabled = isLoading;
+            if (isLoading) {
+                refreshIcon.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+                refreshButton.querySelector('span').textContent = 'Loading...';
+            } else {
+                loadingSpinner.classList.add('hidden');
+                refreshIcon.classList.remove('hidden');
+                refreshButton.querySelector('span').textContent = 'Refresh';
             }
         };
 
         /**
-         * Function to set up event listeners.
+         * Main function to initialize and refresh the entire dashboard.
          */
-        const setupEventListeners = () => {
-            document.getElementById('refresh-button').addEventListener('click', loadData);
+        const initDashboard = async () => {
+            toggleLoadingState(true);
+
+            // 1. Generate AI Summary (API call - this remains)
+            await generateAISummary();
+
+            // 2. Render Mock Data sections
+            renderMovers(MOCK_DATA);
+            renderNews(MOCK_DATA);
+            renderCalendars(MOCK_DATA);
+
+            // 3. Update time and complete loading state
+            updateLastUpdated();
+            toggleLoadingState(false);
         };
 
-        // Initialize the dashboard on load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            setupEventListeners();
-        });
+
+        // --- 4. EVENT LISTENERS AND INITIALIZATION ---
+        window.onload = () => {
+            // Initial dashboard load
+            initDashboard();
+
+            // Setup Dashboard Refresh Button
+            document.getElementById('refresh-button').addEventListener('click', initDashboard);
+
+            // Removed: Chat Toggler and Input Event Listeners
+        };
+
     </script>
 </body>
 </html>
