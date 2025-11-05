@@ -27,7 +27,7 @@
         }
     </script>
     <style>
-        /* Custom scrollbar for news feeds */
+        /* Custom scrollbar for news feeds and chat */
         .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
         }
@@ -167,6 +167,40 @@
         </div>
     </div>
 
+    <!-- 5. AI Assistant Chat Widget -->
+
+    <!-- Chat Floating Button -->
+    <button id="chat-button" class="fixed bottom-6 right-6 p-4 rounded-full bg-ai-blue text-white shadow-xl hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 z-50">
+        <!-- Chat Icon -->
+        <svg id="chat-icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+        <!-- Close Icon -->
+        <svg id="chat-icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+
+    <!-- Chat Flyout Panel -->
+    <div id="chat-panel" class="fixed bottom-20 right-6 w-80 h-[450px] max-h-[80vh] bg-white rounded-xl shadow-2xl flex flex-col transition-transform duration-300 transform translate-x-full z-50 border border-gray-200 overflow-hidden">
+        
+        <!-- Chat Header -->
+        <div class="p-3 bg-ai-blue text-white rounded-t-xl shadow-md flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-3 3M15 10v13l3-3M3 6h18M3 10h18M3 14h18M3 18h18"></path></svg>
+            <span class="font-bold text-sm">Financial AI Assistant</span>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div id="chat-messages" class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar">
+            <!-- Messages will be populated here -->
+        </div>
+
+        <!-- Chat Input Area -->
+        <div class="p-4 border-t border-gray-100 bg-gray-50 flex items-center">
+            <input type="text" id="chat-input" placeholder="Ask a financial question..." class="flex-grow p-2 text-sm border border-gray-300 rounded-l-lg focus:outline-none focus:border-ai-blue" autocomplete="off">
+            <button id="chat-send-button" class="p-2 bg-ai-blue text-white rounded-r-lg hover:bg-blue-700 transition duration-150 focus:outline-none disabled:opacity-50" disabled>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+        </div>
+    </div>
+
+
     <script>
         // --- 1. MOCK DATA AND CONFIGURATION ---
 
@@ -203,7 +237,7 @@
                 { symbol: 'PFE', name: 'Pfizer Inc.', change: -5.00, price: 24.00, marketCap: 150.0 },
                 { symbol: 'INTC', name: 'Intel Corp.', change: -4.50, price: 37.00, marketCap: 155.0 },
             ],
-            // ADDED: Mock data for the news feed to fix the "MOCK_DATA.news is not iterable" error
+            // Added: Mock data for the news feed to fix the "MOCK_DATA.news is not iterable" error
             news: [
                 { source: 'Fox Business', title: 'Fed Signals Rate Hike Pause, But Warns of Inflation Resilience', url: 'https://www.foxbusiness.com/markets/fed-signals-rate-hike-pause', color: 'fb-brand', time: '5 mins ago' },
                 { source: 'Yahoo Finance', title: 'Tech Stocks Dive Amidst AI Valuation Fears; NVDA Down 7%', url: 'https://finance.yahoo.com/news/tech-stocks-dive-ai-valuation-140000305.html', color: 'yf-brand', time: '15 mins ago' },
@@ -233,7 +267,17 @@
             ]
         };
 
-        // --- 2. API AND HELPER FUNCTIONS ---
+        // --- 2. GLOBAL CHAT STATE ---
+        let chatHistory = [
+            { 
+                role: "model", 
+                parts: [{ text: "Hello! I'm your Financial AI Assistant. I can help with market analysis and general finance questions. **I am not authorized to give financial advice.** How can I help?" }] 
+            }
+        ];
+        let isChatOpen = false;
+
+
+        // --- 3. API AND HELPER FUNCTIONS ---
 
         /**
          * Converts market cap in Billions to a readable string.
@@ -398,8 +442,118 @@
             }
         };
 
+        // --- 4. CHAT FUNCTIONALITY ---
+        
+        /**
+         * Toggles the visibility of the chat panel.
+         */
+        const toggleChatPanel = () => {
+            const chatPanel = document.getElementById('chat-panel');
+            const openIcon = document.getElementById('chat-icon-open');
+            const closeIcon = document.getElementById('chat-icon-close');
 
-        // --- 3. MAIN RENDER FUNCTION ---
+            isChatOpen = !isChatOpen;
+            
+            if (isChatOpen) {
+                chatPanel.classList.remove('translate-x-full');
+                openIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+            } else {
+                chatPanel.classList.add('translate-x-full');
+                openIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+            }
+            renderChat(); // Ensure chat history is displayed when opened
+        };
+
+        /**
+         * Renders all messages from the chatHistory to the chat interface.
+         */
+        const renderChat = () => {
+            const messagesDiv = document.getElementById('chat-messages');
+            messagesDiv.innerHTML = chatHistory.map(msg => {
+                const isUser = msg.role === 'user';
+                const bgColor = isUser ? 'bg-ai-blue/10' : 'bg-gray-100';
+                const alignClass = isUser ? 'self-end' : 'self-start';
+                const textColor = isUser ? 'text-gray-900' : 'text-gray-800';
+                const content = msg.parts[0].text.replace(/\n/g, '<br>');
+
+                return `
+                    <div class="max-w-[85%] ${alignClass} ${textColor} text-sm p-3 rounded-lg ${bgColor} shadow-sm">
+                        ${content}
+                    </div>
+                `;
+            }).join('');
+
+            // Scroll to the bottom of the chat window
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        };
+
+        /**
+         * Handles sending the user's message and fetching the AI response.
+         */
+        const sendChatMessage = async () => {
+            const inputElement = document.getElementById('chat-input');
+            const sendButton = document.getElementById('chat-send-button');
+            const userMessage = inputElement.value.trim();
+
+            if (!userMessage) return;
+
+            // 1. Add user message to history and clear input
+            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+            inputElement.value = '';
+            sendButton.disabled = true;
+            renderChat();
+
+            // 2. Add loading indicator (Model's turn)
+            const loadingText = "AI Assistant is thinking...";
+            chatHistory.push({ role: "model", parts: [{ text: loadingText, loading: true }] });
+            renderChat(); // Render with loading message
+
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const systemPrompt = "You are a specialized Financial Analyst AI assistant. Your role is to provide clear, concise, and helpful answers to financial market and data-related questions. Use grounding (Google Search) if the user asks for current events or information not present in the dashboard mock data. IMPORTANT: When the user asks for advice or recommendations, you MUST politely decline and remind them you are not a financial advisor.";
+
+            const payload = {
+                contents: chatHistory.filter(m => !m.parts[0].loading), // Only send non-loading messages
+                tools: [{ "google_search": {} }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            // Remove the temporary loading message
+            chatHistory.pop();
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API returned status code ${response.status}`);
+                }
+
+                const result = await response.json();
+                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I encountered an error retrieving the response.";
+                
+                // 3. Add AI response to history
+                chatHistory.push({ role: "model", parts: [{ text: aiText }] });
+
+            } catch (error) {
+                console.error("Chat API call failed:", error);
+                chatHistory.push({ 
+                    role: "model", 
+                    parts: [{ text: `Error: Failed to connect to AI service. Please try again. (${error.message})` }] 
+                });
+            } finally {
+                sendButton.disabled = false;
+                renderChat();
+            }
+        };
+
+        // --- 5. MAIN RENDER FUNCTION ---
 
         const renderDashboard = () => {
             // Update time
@@ -413,27 +567,21 @@
             document.getElementById('losers-list').innerHTML = losersHtml;
 
             // 2. Render News Feed with custom sorting
-            
-            // Define the custom priority order
             const priorityOrder = ['Fox Business', 'Yahoo Finance', 'CNBC', 'Bloomberg'];
 
             const sortNews = (a, b) => {
                 const indexA = priorityOrder.indexOf(a.source);
                 const indexB = priorityOrder.indexOf(b.source);
 
-                // Assign a very high index for sources not in the priority list (to push them to the end)
                 const rankA = indexA === -1 ? 999 : indexA;
                 const rankB = indexB === -1 ? 999 : indexB;
 
                 if (rankA !== rankB) {
-                    return rankA - rankB; // Sort by priority rank
+                    return rankA - rankB; 
                 }
-                
-                // Secondary sort: keep original order for articles with the same priority (or if both are unlisted)
                 return 0; 
             };
             
-            // The fix was to ensure MOCK_DATA.news exists and is an array.
             const sortedNews = [...MOCK_DATA.news].sort(sortNews);
             const newsHtml = sortedNews.map(renderNewsItem).join('');
             document.getElementById('news-feed').innerHTML = newsHtml;
@@ -450,7 +598,7 @@
             generateAISummary();
         };
 
-        // --- 4. INTERACTION AND AUTOMATION ---
+        // --- 6. INTERACTION AND AUTOMATION ---
 
         let autoRefreshInterval;
 
@@ -463,16 +611,12 @@
             icon.classList.add('hidden');
             spinner.classList.remove('hidden');
 
-            // Clear any existing timer and re-start auto-refresh after the manual refresh
             clearInterval(autoRefreshInterval);
 
-            // Simulate loading time for data refreshes
             await new Promise(resolve => setTimeout(resolve, 1500));
 
-            // Re-render everything, including the API call for the summary
             renderDashboard();
 
-            // Set up the auto-refresh again
             autoRefreshInterval = setInterval(renderDashboard, 30 * 60 * 1000); // 30 minutes
 
             button.disabled = false;
@@ -480,17 +624,41 @@
             spinner.classList.add('hidden');
         };
 
-        // Attach event listener to the manual refresh button
-        document.getElementById('refresh-button').addEventListener('click', handleRefresh);
-
-        // --- 5. INITIALIZATION ---
+        // --- 7. INITIALIZATION ---
 
         window.onload = () => {
-            // Initial render
+            // Initial dashboard render
             renderDashboard();
 
             // Set up auto-refresh (30 minutes)
             autoRefreshInterval = setInterval(renderDashboard, 30 * 60 * 1000);
+
+            // Set up event listeners for refresh button
+            document.getElementById('refresh-button').addEventListener('click', handleRefresh);
+
+            // Set up event listeners for chat widget
+            document.getElementById('chat-button').addEventListener('click', toggleChatPanel);
+            
+            const chatInput = document.getElementById('chat-input');
+            const chatSendButton = document.getElementById('chat-send-button');
+
+            // Enable send button only when input has content
+            chatInput.addEventListener('input', () => {
+                chatSendButton.disabled = chatInput.value.trim().length === 0;
+            });
+
+            // Handle pressing Enter key
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !chatSendButton.disabled) {
+                    sendChatMessage();
+                }
+            });
+
+            // Handle click on send button
+            chatSendButton.addEventListener('click', sendChatMessage);
+            
+            // Initial render of chat history (only the welcome message)
+            renderChat(); 
         };
 
     </script>
