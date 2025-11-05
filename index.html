@@ -77,10 +77,10 @@
             </div>
         </header>
 
-        <!-- Grid Layout for Main Content -->
+        <!-- Grid Layout for Main Content - Now stacked in a single column -->
         <div class="grid grid-cols-1 gap-6">
 
-            <!-- 1. AI-Generated Market Snapshot (Full Width) -->
+            <!-- 1. AI-Generated Market Snapshot (Full Width) - NOW LIVE GENERATED -->
             <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
                 <h2 class="text-xl font-bold text-ai-blue mb-3 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-3 3M15 10v13l3-3M3 6h18M3 10h18M3 14h18M3 18h18"></path></svg>
@@ -95,7 +95,7 @@
             <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-full">
                 <h2 class="text-xl font-bold text-gray-900 mb-2 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v2m-7 13h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v2M9 13h6"></path></svg>
-                    Financial News Feed
+                    Financial News Feed (Mock Data)
                 </h2>
                 <p class="text-sm text-gray-500 mb-4">High-priority headlines from preferred sources.</p>
                 
@@ -114,7 +114,7 @@
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
                         <h2 class="text-xl font-bold text-market-green mb-3 flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8"></path></svg>
-                            Top 25 Gainers (>$2B Cap)
+                            Top 25 Gainers (Mock Data)
                         </h2>
                         <div id="gainers-list" class="space-y-2 max-h-96 custom-scrollbar overflow-y-auto pr-2">
                             <!-- Gainers will be populated here -->
@@ -125,7 +125,7 @@
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
                         <h2 class="text-xl font-bold text-market-red mb-3 flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8"></path></svg>
-                            Top 25 Losers (>$2B Cap)
+                            Top 25 Losers (Mock Data)
                         </h2>
                         <div id="losers-list" class="space-y-2 max-h-96 custom-scrollbar overflow-y-auto pr-2">
                             <!-- Losers will be populated here -->
@@ -140,7 +140,7 @@
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
                         <h2 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h.01M13 11h.01M17 11h.01M7 15h.01M11 15h.01M15 15h.01M7 19h.01M11 19h.01M15 19h.01M4 21h16a2 2 0 002-2V5a2 2 0 00-2-2H4a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                            U.S. Economic Calendar (30 Days)
+                            U.S. Economic Calendar (Mock Data)
                         </h2>
                         <div id="economic-calendar" class="space-y-3 max-h-96 custom-scrollbar overflow-y-auto pr-2">
                             <!-- Calendar will be populated here -->
@@ -153,7 +153,7 @@
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
                         <h2 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2h-1M4 14v1a3 3 0 003 3h5m0-9v6"></path></svg>
-                            Upcoming Earnings (Mid/Large Cap)
+                            Upcoming Earnings (Mock Data)
                         </h2>
                         <div id="earnings-calendar" class="space-y-3 max-h-96 custom-scrollbar overflow-y-auto pr-2">
                             <!-- Earnings will be populated here -->
@@ -169,9 +169,10 @@
 
 
     <script>
-        // --- 1. MOCK DATA AND CONFIGURATION ---
+        // --- 1. MOCK DATA AND CONFIGURATION (MOCK sections remain unchanged) ---
 
         const MOCK_DATA = {
+            // Note: The AI Summaries array has been removed as we now generate live content.
             gainers: [
                 { symbol: 'SLDP', name: 'Solid Power', change: 53.96, price: 8.65, marketCap: 2.1 },
                 { symbol: 'LMND', name: 'Lemonade', change: 30.97, price: 76.79, marketCap: 4.5 },
@@ -234,7 +235,10 @@
             ]
         };
 
+
         // --- 2. API AND HELPER FUNCTIONS ---
+
+        const API_KEY = ""; // Placeholder for the key provided by the execution environment
 
         /**
          * Converts market cap in Billions to a readable string.
@@ -245,6 +249,127 @@
             if (capB >= 1000) return `$${(capB / 1000).toFixed(1)}T`;
             return `$${capB.toFixed(1)}B`;
         };
+
+        /**
+         * Renders the citation sources below the generated summary.
+         * @param {Array<Object>} sources - Array of source objects (uri, title).
+         * @returns {string} HTML string of source links.
+         */
+        const renderSources = (sources) => {
+            if (!sources || sources.length === 0) {
+                return '<p class="text-xs text-gray-500 mt-3 italic">Sources not available.</p>';
+            }
+            
+            const sourceList = sources.map((source, index) => {
+                // Use the index + 1 as the reference number
+                const refNum = index + 1;
+                return `
+                    <li class="inline-block mr-3 text-xs">
+                        [${refNum}] <a href="${source.uri}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">${source.title || 'Source Link'}</a>
+                    </li>
+                `;
+            }).join('');
+
+            return `<div class="mt-4 pt-3 border-t border-gray-100">
+                <p class="text-sm font-semibold text-gray-600 mb-1">Citations:</p>
+                <ul class="flex flex-wrap">${sourceList}</ul>
+            </div>`;
+        };
+        
+        /**
+         * Implements exponential backoff for API calls.
+         */
+        const exponentialBackoffFetch = async (url, options, maxRetries = 5) => {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status !== 429 && response.ok) {
+                        return response;
+                    } else if (response.status === 429 && i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    } else {
+                        throw new Error(`API request failed with status: ${response.status}`);
+                    }
+                } catch (error) {
+                    if (i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    throw error;
+                }
+            }
+        };
+
+
+        /**
+         * NEW: Calls the Gemini API to generate a real-time market snapshot using Google Search grounding.
+         */
+        const generateAISummary = async () => {
+            const contentDiv = document.getElementById('ai-summary-content');
+            
+            // Show a mock loading state
+            contentDiv.innerHTML = `<div class="flex items-center space-x-2 text-blue-600">
+                <div class="w-4 h-4 border-2 border-transparent border-t-blue-600 rounded-full spinner"></div>
+                <span>Analyzing real-time market data...</span>
+            </div>`;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+            const userQuery = "Generate a single paragraph real-time market snapshot for the U.S. financial markets, summarizing the main drivers (e.g., inflation, tech, earnings) and two key pieces of news.";
+            const systemPrompt = "You are a senior financial analyst and a market expert. Provide a single, concise paragraph summarizing the current market sentiment, highlighting the main drivers and key recent developments. Use bold markdown for key trend words (e.g., **bullish**, **volatile**).";
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                tools: [{ "google_search": {} }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            let generatedText = "Error: Could not retrieve real-time analysis.";
+            let sources = [];
+
+            try {
+                const response = await exponentialBackoffFetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    generatedText = candidate.content.parts[0].text;
+                    
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attribution => ({
+                                uri: attribution.web?.uri,
+                                title: attribution.web?.title,
+                            }))
+                            .filter(source => source.uri && source.title);
+                    }
+                } else {
+                    console.error("Gemini API response missing text content or candidate structure.", result);
+                }
+
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                generatedText = `Analysis failed due to a network or API error. (Error: ${error.message}). Please try refreshing again.`;
+            }
+
+            // Display the generated summary and sources
+            contentDiv.innerHTML = `
+                <p class="text-gray-700 leading-relaxed">${generatedText}</p>
+                ${renderSources(sources)}
+            `;
+        };
+
+        // --- 3. MOCK RENDER FUNCTIONS (These sections remain mock data) ---
 
         /**
          * Renders an individual stock mover item, now clickable.
@@ -340,66 +465,6 @@
             `;
         };
 
-        /**
-         * Mocks the AI summary generation using the Gemini API.
-         * Includes exponential backoff for robustness.
-         */
-        const generateAISummary = async (maxRetries = 5) => {
-            const contentDiv = document.getElementById('ai-summary-content');
-            contentDiv.innerHTML = `<div class="flex items-center space-x-2 text-blue-600">
-                <div class="w-4 h-4 border-2 border-transparent border-t-blue-600 rounded-full spinner"></div>
-                <span>Analyzing market data...</span>
-            </div>`;
-
-            const systemPrompt = "You are a specialized Financial Market Intelligence AI. Provide a concise, single-paragraph summary of today's U.S. stock market activity. Highlight the most recent high-impact financial news, key sector movements (e.g., Tech/AI volatility), and notable intraday stock movers. Ensure the tone is objective and analytical.";
-            // Streamlined query to rely heavily on Google Search grounding for real-time information
-            const userQuery = "Generate a current, real-time market summary. Analyze the most recent high-impact financial news and economic calendar events, major sector movements, and significant single-stock movers today. Focus on synthesizing data from Google Search to provide an accurate, current snapshot.";
-
-            const apiKey = ""; // Canvas will provide this if needed
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                tools: [{ "google_search": {} }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-            };
-
-            for (let attempt = 0; attempt < maxRetries; attempt++) {
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        if (response.status === 429 && attempt < maxRetries - 1) {
-                            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            continue; // Retry
-                        }
-                        throw new Error(`API returned status code ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Error: Could not retrieve AI summary content.";
-                    
-                    // Display the successful summary
-                    contentDiv.innerHTML = `<p class="text-gray-700 leading-relaxed">${text}</p>`;
-                    return; // Exit function on success
-
-                } catch (error) {
-                    console.error(`Attempt ${attempt + 1} failed:`, error);
-                    if (attempt === maxRetries - 1) {
-                        // Display final error message
-                        contentDiv.innerHTML = `<p class="text-market-red font-semibold">Error: Failed to fetch AI Market Snapshot after ${maxRetries} attempts. Check console for details.</p>`;
-                    }
-                }
-            }
-        };
-
-        // --- 3. RENDER FUNCTIONS (FOR MOCK DATA) ---
-
         const renderMovers = (data) => {
             document.getElementById('gainers-list').innerHTML = data.gainers.map(renderMoverItem).join('');
             document.getElementById('losers-list').innerHTML = data.losers.map(renderMoverItem).join('');
@@ -451,7 +516,7 @@
         const initDashboard = async () => {
             toggleLoadingState(true);
 
-            // 1. Generate AI Summary (API call - designed for HTTPS environments)
+            // 1. Generate LIVE AI Summary with Google Search grounding
             await generateAISummary();
 
             // 2. Render Mock Data sections
@@ -472,8 +537,6 @@
 
             // Setup Dashboard Refresh Button
             document.getElementById('refresh-button').addEventListener('click', initDashboard);
-
-            // Removed all chat-related event listeners and functions
         };
 
     </script>
