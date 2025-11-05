@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TJBS - Financial Stewardship</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'yf-brand': '#6001D2', // Yahoo Finance Mock
+                        'fb-brand': '#CC0000', // Fox Business Mock
+                        'cnbc-brand': '#3A606E', // CNBC Mock
+                        'bloomberg-brand': '#1F2E7D', // Bloomberg Mock
+                        'market-green': '#10B981',
+                        'market-red': '#EF4444',
+                        'ai-blue': '#3B82F6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for news feeds */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5); /* gray-400 with opacity */
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        /* Specific styling for the fixed disclaimer */
+        #disclaimer {
+            z-index: 50; /* Ensure it stays on top */
+        }
+        /* Loading spinner animation */
+        .spinner {
+            border-top-color: #3B82F6;
+            -webkit-animation: spin 1s ease-in-out infinite;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- 1. Persistent Disclaimer -->
+    <div id="disclaimer" class="sticky top-0 bg-yellow-100 border-b border-yellow-200 p-2 text-center text-sm font-medium text-yellow-800 shadow-lg">
+        <p><strong>Disclaimer:</strong> Content is for informational purposes only. It is not investment advice or a recommendation to buy or sell any security.</p>
+    </div>
+
+    <!-- Main Dashboard Container -->
+    <div class="container mx-auto p-4 md:p-6 lg:p-8 pt-4">
+
+        <!-- Header and Refresh -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-2 sm:mb-0">TJBS - Financial Stewardship</h1>
+            <div class="flex items-center space-x-3">
+                <p id="last-updated" class="text-sm text-gray-500 italic">Last Update: --:--:--</p>
+                <button id="refresh-button" class="flex items-center px-4 py-2 bg-ai-blue text-white text-sm font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                    <svg id="refresh-icon" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.118 0a8 8 0 01-9.336 6.582M20 20v-5h-.582m-15.118 0a8 8 0 019.336-6.582"></path></svg>
+                    <div id="loading-spinner" class="hidden w-4 h-4 mr-2 border-2 border-transparent border-t-white rounded-full spinner"></div>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Grid Layout for Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- COLUMN 1 & 2: AI Summary, Calendars, Movers -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- 2. AI-Generated Market Snapshot -->
+                <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <h2 class="text-xl font-bold text-ai-blue mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-3 3M15 10v13l3-3M3 6h18M3 10h18M3 14h18M3 18h18"></path></svg>
+                        AI Market Snapshot
+                    </h2>
+                    <div id="ai-summary-content">
+                        <p class="text-gray-500 italic">Generating real-time intelligence...</p>
+                    </div>
+                </section>
+
+                <!-- 6. Market Movers -->
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h2 class="text-xl font-bold text-market-green mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8"></path></svg>
+                            Top 25 Gainers (>$2B Cap)
+                        </h2>
+                        <div id="gainers-list" class="space-y-2 max-h-96 custom-scrollbar overflow-y-auto pr-2">
+                            <!-- Gainers will be populated here -->
+                            <p class="text-sm text-gray-500">Loading data...</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h2 class="text-xl font-bold text-market-red mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8"></path></svg>
+                            Top 25 Losers (>$2B Cap)
+                        </h2>
+                        <div id="losers-list" class="space-y-2 max-h-96 custom-scrollbar overflow-y-auto pr-2">
+                            <!-- Losers will be populated here -->
+                            <p class="text-sm text-gray-500">Loading data...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. Economic Calendar & 7. Earnings Calendar -->
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Economic Calendar -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h.01M13 11h.01M17 11h.01M7 15h.01M11 15h.01M15 15h.01M7 19h.01M11 19h.01M15 19h.01M4 21h16a2 2 0 002-2V5a2 2 0 00-2-2H4a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            U.S. Economic Calendar (30 Days)
+                        </h2>
+                        <div id="economic-calendar" class="space-y-3 max-h-96 custom-scrollbar overflow-y-auto pr-2">
+                            <!-- Calendar will be populated here -->
+                            <p class="text-sm text-gray-500">Loading data...</p>
+                        </div>
+                        <a href="https://www.tradingeconomics.com/calendar" target="_blank" class="mt-4 inline-block text-sm text-blue-600 hover:text-blue-800 font-semibold">More from Trading Economics &rarr;</a>
+                    </div>
+
+                    <!-- Earnings Calendar -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2h-1M4 14v1a3 3 0 003 3h5m0-9v6"></path></svg>
+                            Upcoming Earnings (Mid/Large Cap)
+                        </h2>
+                        <div id="earnings-calendar" class="space-y-3 max-h-96 custom-scrollbar overflow-y-auto pr-2">
+                            <!-- Earnings will be populated here -->
+                            <p class="text-sm text-gray-500">Loading data...</p>
+                        </div>
+                        <a href="https://finance.yahoo.com/calendar" target="_blank" class="mt-4 inline-block text-sm text-blue-600 hover:text-blue-800 font-semibold">More from Yahoo Finance &rarr;</a>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- COLUMN 3: News Feed -->
+            <div class="lg:col-span-1">
+                <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-full">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v2m-7 13h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v2M9 13h6"></path></svg>
+                        Financial News Feed
+                    </h2>
+                    <div id="news-feed" class="space-y-4 max-h-[85vh] custom-scrollbar overflow-y-auto pr-2">
+                        <!-- News items will be populated here -->
+                        <p class="text-sm text-gray-500">Loading news...</p>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- 1. MOCK DATA AND CONFIGURATION ---
+
+        const MOCK_DATA = {
+            gainers: [
+                { symbol: 'SLDP', name: 'Solid Power', change: 53.96, price: 8.65, marketCap: 2.1 },
+                { symbol: 'LMND', name: 'Lemonade', change: 30.97, price: 76.79, marketCap: 4.5 },
+                { symbol: 'KW', name: 'Kennedy-Wilson Holdings', change: 30.75, price: 9.78, marketCap: 3.2 },
+                { symbol: 'LITE', name: 'Lumentum Holdings', change: 26.30, price: 237.85, marketCap: 5.8 },
+                { symbol: 'TDC', name: 'TERADATA Corp.', change: 25.74, price: 26.04, marketCap: 2.9 },
+                { symbol: 'MTSR', name: 'Metsera Inc.', change: 20.50, price: 73.18, marketCap: 6.1 },
+                { symbol: 'AHCO', name: 'AdaptHealth Corp.', change: 17.38, price: 10.67, marketCap: 2.4 },
+                { symbol: 'SANM', name: 'Sanmina Corp.', change: 16.56, price: 163.58, marketCap: 8.7 },
+                { symbol: 'VITL', name: 'Vital Farms', change: 16.13, price: 37.37, marketCap: 2.0 },
+                { symbol: 'INSP', name: 'Inspire Medical Systems', change: 15.33, price: 85.01, marketCap: 4.9 },
+                { symbol: 'VEEV', name: 'Veeva Systems', change: 12.11, price: 180.20, marketCap: 36.5 },
+                { symbol: 'PLTR', name: 'Palantir Technologies', change: 9.25, price: 180.74, marketCap: 40.0 },
+                { symbol: 'BA', name: 'Boeing Co.', change: 8.88, price: 220.01, marketCap: 125.0 },
+                { symbol: 'MSFT', name: 'Microsoft Corp.', change: 7.50, price: 420.00, marketCap: 3000.0 },
+                { symbol: 'GOOGL', name: 'Alphabet Inc.', change: 6.90, price: 160.00, marketCap: 2200.0 },
+            ],
+            losers: [
+                { symbol: 'SRPT', name: 'Sarepta Therapeutics', change: -33.74, price: 16.20, marketCap: 2.5 },
+                { symbol: 'NSP', name: 'Insperity', change: -17.88, price: 37.03, marketCap: 2.8 },
+                { symbol: 'AESI', name: 'Atlas Energy Solutions', change: -15.89, price: 10.64, marketCap: 2.2 },
+                { symbol: 'NCLH', name: 'Norwegian Cruise Line', change: -15.28, price: 18.79, marketCap: 8.5 },
+                { symbol: 'NVTS', name: 'Navitas Semiconductor', change: -14.61, price: 10.46, marketCap: 3.1 },
+                { symbol: 'ZTS', name: 'ZOETIS', change: -13.78, price: 124.46, marketCap: 58.0 },
+                { symbol: 'LSCC', name: 'Lattice Semiconductor', change: -13.17, price: 63.23, marketCap: 9.3 },
+                { symbol: 'KMB', name: 'Kimberly-Clark', change: -12.10, price: 110.50, marketCap: 36.0 },
+                { symbol: 'BYND', name: 'Beyond Meat', change: -11.70, price: 10.15, marketCap: 5.5 },
+                { symbol: 'AMD', name: 'Advanced Micro Devices', change: -8.80, price: 150.00, marketCap: 250.0 },
+                { symbol: 'NVDA', name: 'NVIDIA Corp.', change: -7.94, price: 190.74, marketCap: 500.0 },
+                { symbol: 'PFE', name: 'Pfizer Inc.', change: -5.00, price: 24.00, marketCap: 150.0 },
+                { symbol: 'INTC', name: 'Intel Corp.', change: -4.50, price: 37.00, marketCap: 155.0 },
+            ],
+            economicCalendar: [
+                { date: 'Nov 8 (Fri)', time: '8:30 AM ET', event: 'Nonfarm Payrolls', forecast: '75K', previous: '79K', impact: 'High' },
+                { date: 'Nov 13 (Wed)', time: '8:30 AM ET', event: 'CPI MoM', forecast: '0.3%', previous: '0.4%', impact: 'High' },
+                { date: 'Nov 15 (Fri)', time: '10:00 AM ET', event: 'Retail Sales MoM', forecast: '0.5%', previous: '0.2%', impact: 'Medium' },
+                { date: 'Nov 20 (Wed)', time: '2:00 PM ET', event: 'FOMC Meeting Minutes', forecast: 'N/A', previous: 'N/A', impact: 'High' },
+                { date: 'Nov 22 (Fri)', time: '9:45 AM ET', event: 'PMI Composite', forecast: '51.2', previous: '50.9', impact: 'Medium' },
+                { date: 'Nov 27 (Wed)', time: '10:00 AM ET', event: 'Consumer Confidence', forecast: '98.0', previous: '97.5', impact: 'Medium' },
+            ],
+            earningsCalendar: [
+                { date: 'Nov 7 (Thu)', time: 'After Market Close', company: 'ARISTA', ticker: 'ANET', estimate: '$1.70' },
+                { date: 'Nov 11 (Mon)', time: 'Before Market Open', company: 'Beyond Meat', ticker: 'BYND', estimate: '($0.85)' },
+                { date: 'Nov 14 (Thu)', time: 'After Market Close', company: 'Uber Technologies', ticker: 'UBER', estimate: '$0.15' },
+                { date: 'Nov 18 (Mon)', time: 'Before Market Open', company: 'Spotify Technology', ticker: 'SPOT', estimate: '$0.92' },
+                { date: 'Nov 21 (Thu)', time: 'After Market Close', company: 'Marathon Petroleum', ticker: 'MPC', estimate: '$4.12' },
+                { date: 'Dec 2 (Mon)', time: 'Before Market Open', company: 'Lowe\'s Cos', ticker: 'LOW', estimate: '$3.01' },
+            ],
+            news: [
+                { source: 'Yahoo Finance', color: 'yf-brand', time: '15m ago', title: 'AI Bubble Fears Resurface as Nvidia, Palantir Lead Tech Sell-off', img: 'https://placehold.co/400x200/6001D2/ffffff?text=AI+Stocks', url: 'https://finance.yahoo.com/news/' },
+                { source: 'Fox Business', color: 'fb-brand', time: '45m ago', title: 'Kimberly-Clark Shares Tumble 12% on Deal to Acquire Kenvue for $48.7 Billion', img: 'https://placehold.co/400x200/CC0000/ffffff?text=KMB/KVUE', url: 'https://www.foxbusiness.com/markets' },
+                { source: 'CNBC', color: 'cnbc-brand', time: '1h ago', title: 'Fed Officials Signal Higher-for-Longer Rates After CPI Report: What it Means for Q4', img: 'https://placehold.co/400x200/3A606E/ffffff?text=Fed+Rates', url: 'https://www.cnbc.com/financial-markets/' },
+                { source: 'Bloomberg', color: 'bloomberg-brand', time: '2h ago', title: 'Solid Power Jumps 53% on New Battery Tech Announcement; Retail Sector Drags on Broader Market', img: 'https://placehold.co/400x200/1F2E7D/ffffff?text=Solid+Power', url: 'https://www.bloomberg.com/markets' },
+                { source: 'Yahoo Finance', color: 'yf-brand', time: '3h ago', title: 'Oil Prices Retreat Amid Fading Supply Concerns; US Benchmark Drops Below $61', img: 'https://placehold.co/400x200/6001D2/ffffff?text=Crude+Oil', url: 'https://finance.yahoo.com/news/' },
+                { source: 'CNBC', color: 'cnbc-brand', time: '5h ago', title: 'Analyst Warning: Over 80% of S&P 500 Companies Beat EPS, but Guidance Remains Cautious', img: 'https://placehold.co/400x200/3A606E/ffffff?text=Earnings+Season', url: 'https://www.cnbc.com/financial-markets/' },
+            ]
+        };
+
+        // --- 2. API AND HELPER FUNCTIONS ---
+
+        /**
+         * Converts market cap in Billions to a readable string.
+         * @param {number} capB - Market Cap in Billions of USD.
+         * @returns {string} Formatted string.
+         */
+        const formatMarketCap = (capB) => {
+            if (capB >= 1000) return `$${(capB / 1000).toFixed(1)}T`;
+            return `$${capB.toFixed(1)}B`;
+        };
+
+        /**
+         * Renders an individual stock mover item.
+         */
+        const renderMoverItem = (stock) => {
+            const isGainer = stock.change >= 0;
+            const colorClass = isGainer ? 'text-market-green bg-green-50' : 'text-market-red bg-red-50';
+            const sign = isGainer ? '+' : '';
+
+            return `
+                <div class="flex justify-between items-center p-2 rounded-lg ${colorClass} transition duration-100 hover:shadow-md">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-mono text-sm font-bold">${stock.symbol}</span>
+                        <span class="text-xs text-gray-700">${stock.name}</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-semibold text-sm">${sign}${stock.change.toFixed(2)}%</span>
+                        <span class="block text-xs text-gray-500">${formatMarketCap(stock.marketCap)}</span>
+                    </div>
+                </div>
+            `;
+        };
+
+        /**
+         * Renders an individual news item.
+         */
+        const renderNewsItem = (item) => {
+            return `
+                <a href="${item.url}" target="_blank" class="block group border border-gray-100 rounded-xl shadow-sm hover:shadow-lg transition duration-200">
+                    <div class="relative overflow-hidden rounded-t-xl">
+                        <img src="${item.img}" alt="News Image" class="w-full h-32 object-cover group-hover:scale-[1.02] transition duration-300 onerror="this.onerror=null; this.src='https://placehold.co/400x200/E5E7EB/9CA3AF?text=No+Image';" />
+                    </div>
+                    <div class="p-3">
+                        <p class="text-xs font-semibold uppercase text-${item.color}">${item.source}</p>
+                        <h4 class="text-sm font-bold text-gray-900 mt-1 group-hover:text-ai-blue transition">${item.title}</h4>
+                        <p class="text-xs text-gray-500 mt-2">${item.time} | <span class="text-gray-400">Read More</span></p>
+                    </div>
+                </a>
+            `;
+        };
+
+        /**
+         * Renders an individual calendar event.
+         */
+        const renderCalendarItem = (event, type = 'economic') => {
+            const impactClass = event.impact === 'High' ? 'bg-market-red text-white' : 'bg-yellow-100 text-yellow-800';
+            let detail = '';
+
+            if (type === 'economic') {
+                detail = `
+                    <div class="flex justify-between text-xs mt-1 text-gray-600">
+                        <span>F/P: ${event.forecast} / ${event.previous}</span>
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full ${impactClass}">${event.impact}</span>
+                    </div>
+                `;
+            } else if (type === 'earnings') {
+                detail = `
+                    <div class="flex justify-between text-xs mt-1 text-gray-600">
+                        <span class="font-bold">${event.ticker}</span>
+                        <span>EPS Est: ${event.estimate}</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="border-b border-gray-100 pb-2">
+                    <div class="flex justify-between items-center text-sm font-medium">
+                        <span class="text-gray-800">${event.event || event.company}</span>
+                        <span class="text-gray-500">${event.date} (${event.time.split(' ')[0]})</span>
+                    </div>
+                    ${detail}
+                </div>
+            `;
+        };
+
+        /**
+         * Mocks the AI summary generation using the Gemini API.
+         * Includes exponential backoff for robustness.
+         */
+        const generateAISummary = async (maxRetries = 3) => {
+            const contentDiv = document.getElementById('ai-summary-content');
+            contentDiv.innerHTML = `<div class="flex items-center space-x-2 text-blue-600">
+                <div class="w-4 h-4 border-2 border-transparent border-t-blue-600 rounded-full spinner"></div>
+                <span>Analyzing market data...</span>
+            </div>`;
+
+            const systemPrompt = "You are a specialized Financial Market Intelligence AI. Provide a concise, single-paragraph summary of today's U.S. stock market activity. Highlight the most recent high-impact economic data (like CPI, NFP, Fed decisions), key sector movements (e.g., Tech/AI volatility), and notable intraday stock movers. Ensure the tone is objective and analytical.";
+            const userQuery = `Generate a current market summary based on the following key points:
+- Recent Economic Data: CPI YoY is at 3.0%. NFP recently missed forecast (Actual 22K vs. Forecast 75K).
+- Central Bank Sentiment: Fed officials indicate a 'higher-for-longer' interest rate outlook, dampening rate cut hopes.
+- Top News Themes: Heavy volatility in mega-cap AI stocks (Nvidia, Palantir) due to valuation concerns. Major M&A activity: Kimberly-Clark acquiring Kenvue.
+- Intraday Movers: Extreme single-day volatility, with companies like Solid Power (53% gain) and Sarepta (-33% loss) driving headlines.`;
+
+            const apiKey = ""; // Canvas will provide this if needed
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                tools: [{ "google_search": {} }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429 && attempt < maxRetries - 1) {
+                            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            continue; // Retry
+                        }
+                        throw new Error(`API returned status code ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Error: Could not retrieve AI summary content.";
+                    
+                    contentDiv.innerHTML = `<p class="text-gray-700 leading-relaxed">${text}</p>`;
+                    return;
+
+                } catch (error) {
+                    console.error(`Attempt ${attempt + 1} failed:`, error);
+                    if (attempt === maxRetries - 1) {
+                        contentDiv.innerHTML = `<p class="text-market-red font-semibold">Error: Failed to fetch AI Market Snapshot after ${maxRetries} attempts. Check console for details.</p>`;
+                    }
+                }
+            }
+        };
+
+
+        // --- 3. MAIN RENDER FUNCTION ---
+
+        const renderDashboard = () => {
+            // Update time
+            document.getElementById('last-updated').textContent = `Last Update: ${new Date().toLocaleTimeString('en-US')}`;
+
+            // 1. Render Market Movers (Gainers/Losers)
+            const gainersHtml = MOCK_DATA.gainers.slice(0, 25).map(renderMoverItem).join('');
+            document.getElementById('gainers-list').innerHTML = gainersHtml;
+
+            const losersHtml = MOCK_DATA.losers.slice(0, 25).map(renderMoverItem).join('');
+            document.getElementById('losers-list').innerHTML = losersHtml;
+
+            // 2. Render News Feed
+            const newsHtml = MOCK_DATA.news.map(renderNewsItem).join('');
+            document.getElementById('news-feed').innerHTML = newsHtml;
+
+            // 3. Render Economic Calendar
+            const econHtml = MOCK_DATA.economicCalendar.map(e => renderCalendarItem(e, 'economic')).join('');
+            document.getElementById('economic-calendar').innerHTML = econHtml;
+
+            // 4. Render Earnings Calendar
+            const earningsHtml = MOCK_DATA.earningsCalendar.map(e => renderCalendarItem(e, 'earnings')).join('');
+            document.getElementById('earnings-calendar').innerHTML = earningsHtml;
+
+            // 5. Generate AI Summary (Calls the external API)
+            generateAISummary();
+        };
+
+        // --- 4. INTERACTION AND AUTOMATION ---
+
+        let autoRefreshInterval;
+
+        const handleRefresh = async () => {
+            const button = document.getElementById('refresh-button');
+            const icon = document.getElementById('refresh-icon');
+            const spinner = document.getElementById('loading-spinner');
+
+            button.disabled = true;
+            icon.classList.add('hidden');
+            spinner.classList.remove('hidden');
+
+            // Clear any existing timer and re-start auto-refresh after the manual refresh
+            clearInterval(autoRefreshInterval);
+
+            // Simulate loading time for data refreshes
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Re-render everything, including the API call for the summary
+            renderDashboard();
+
+            // Set up the auto-refresh again
+            autoRefreshInterval = setInterval(renderDashboard, 30 * 60 * 1000); // 30 minutes
+
+            button.disabled = false;
+            icon.classList.remove('hidden');
+            spinner.classList.add('hidden');
+        };
+
+        // Attach event listener to the manual refresh button
+        document.getElementById('refresh-button').addEventListener('click', handleRefresh);
+
+        // --- 5. INITIALIZATION ---
+
+        window.onload = () => {
+            // Initial render
+            renderDashboard();
+
+            // Set up auto-refresh (30 minutes)
+            autoRefreshInterval = setInterval(renderDashboard, 30 * 60 * 1000);
+        };
+
+    </script>
+</body>
+</html>
