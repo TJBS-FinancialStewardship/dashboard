@@ -237,7 +237,7 @@
                 { symbol: 'PFE', name: 'Pfizer Inc.', change: -5.00, price: 24.00, marketCap: 150.0 },
                 { symbol: 'INTC', name: 'Intel Corp.', change: -4.50, price: 37.00, marketCap: 155.0 },
             ],
-            // Added: Mock data for the news feed to fix the "MOCK_DATA.news is not iterable" error
+            // Added: Mock data for the news feed to ensure rendering works
             news: [
                 { source: 'Fox Business', title: 'Fed Signals Rate Hike Pause, But Warns of Inflation Resilience', url: 'https://www.foxbusiness.com/markets/fed-signals-rate-hike-pause', color: 'fb-brand', time: '5 mins ago' },
                 { source: 'Yahoo Finance', title: 'Tech Stocks Dive Amidst AI Valuation Fears; NVDA Down 7%', url: 'https://finance.yahoo.com/news/tech-stocks-dive-ai-valuation-140000305.html', color: 'yf-brand', time: '15 mins ago' },
@@ -396,7 +396,7 @@
 
             const systemPrompt = "You are a specialized Financial Market Intelligence AI. Provide a concise, single-paragraph summary of today's U.S. stock market activity. Highlight the most recent high-impact economic data (like CPI, NFP, Fed decisions), key sector movements (e.g., Tech/AI volatility), and notable intraday stock movers. Ensure the tone is objective and analytical.";
             const userQuery = `Generate a current market summary based on the following key points:
-- Recent Economic Data: CPI YoY is at 3.0%. NFP recently missed forecast (Actual 22K vs. Forecast 75K).
+- Recent Economic Data: CPI YoY is at 3.0%. Nonfarm Payrolls (NFP) recently missed forecast (Actual 22K vs. Forecast 75K).
 - Central Bank Sentiment: Fed officials indicate a 'higher-for-longer' interest rate outlook, dampening rate cut hopes.
 - Top News Themes: Heavy volatility in mega-cap AI stocks (Nvidia, Palantir) due to valuation concerns. Major M&A activity: Kimberly-Clark acquiring Kenvue.
 - Intraday Movers: Extreme single-day volatility, with companies like Solid Power (53% gain) and Sarepta (-33% loss) driving headlines.`;
@@ -430,12 +430,14 @@
                     const result = await response.json();
                     const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Error: Could not retrieve AI summary content.";
                     
+                    // Display the successful summary
                     contentDiv.innerHTML = `<p class="text-gray-700 leading-relaxed">${text}</p>`;
-                    return;
+                    return; // Exit function on success
 
                 } catch (error) {
                     console.error(`Attempt ${attempt + 1} failed:`, error);
                     if (attempt === maxRetries - 1) {
+                        // Display final error message
                         contentDiv.innerHTML = `<p class="text-market-red font-semibold">Error: Failed to fetch AI Market Snapshot after ${maxRetries} attempts. Check console for details.</p>`;
                     }
                 }
@@ -503,162 +505,166 @@
             chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
             inputElement.value = '';
             sendButton.disabled = true;
-            renderChat();
 
-            // 2. Add loading indicator (Model's turn)
-            const loadingText = "AI Assistant is thinking...";
-            chatHistory.push({ role: "model", parts: [{ text: loadingText, loading: true }] });
-            renderChat(); // Render with loading message
+            renderChat(); // Show user message
 
-            const apiKey = ""; 
+            const messagesDiv = document.getElementById('chat-messages');
+
+            // Add loading indicator for model response
+            const loadingHtml = `
+                <div id="model-loading" class="max-w-[85%] self-start text-gray-800 text-sm p-3 rounded-lg bg-gray-100 shadow-sm flex items-center space-x-2">
+                    <div class="w-4 h-4 border-2 border-transparent border-t-ai-blue rounded-full spinner"></div>
+                    <span>AI is typing...</span>
+                </div>
+            `;
+            messagesDiv.insertAdjacentHTML('beforeend', loadingHtml);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            const apiKey = "";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            
-            const systemPrompt = "You are a specialized Financial Analyst AI assistant. Your role is to provide clear, concise, and helpful answers to financial market and data-related questions. Use grounding (Google Search) if the user asks for current events or information not present in the dashboard mock data. IMPORTANT: When the user asks for advice or recommendations, you MUST politely decline and remind them you are not a financial advisor.";
 
             const payload = {
-                contents: chatHistory.filter(m => !m.parts[0].loading), // Only send non-loading messages
+                contents: chatHistory, // Send the full history for context
                 tools: [{ "google_search": {} }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
+                systemInstruction: { parts: [{ text: "You are a concise, helpful financial assistant. Answer user questions about the market, stocks, and finance using real-time information. Always state that you are not giving investment advice." }] },
             };
-            
-            // Remove the temporary loading message
-            chatHistory.pop();
 
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+            // Simple retry loop for chat, max 3 retries
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-                if (!response.ok) {
-                    throw new Error(`API returned status code ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`API returned status ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const modelText = result.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, I could not generate a response at this time.";
+
+                    // Remove loading indicator
+                    document.getElementById('model-loading')?.remove();
+
+                    chatHistory.push({ role: "model", parts: [{ text: modelText }] });
+                    renderChat();
+                    break; // Success, exit retry loop
+
+                } catch (error) {
+                    console.error(`Chat attempt ${attempt + 1} failed:`, error);
+                    if (attempt === 2) {
+                        // Final attempt failed
+                        document.getElementById('model-loading')?.remove();
+                        const errorMsg = "I'm having trouble connecting to the network right now. Please try again in a moment.";
+                        chatHistory.push({ role: "model", parts: [{ text: errorMsg }] });
+                        renderChat();
+                    } else {
+                        // Exponential backoff delay for chat
+                        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+                    }
                 }
+            }
 
-                const result = await response.json();
-                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I encountered an error retrieving the response.";
-                
-                // 3. Add AI response to history
-                chatHistory.push({ role: "model", parts: [{ text: aiText }] });
+            sendButton.disabled = false;
+            inputElement.focus();
+        };
 
-            } catch (error) {
-                console.error("Chat API call failed:", error);
-                chatHistory.push({ 
-                    role: "model", 
-                    parts: [{ text: `Error: Failed to connect to AI service. Please try again. (${error.message})` }] 
-                });
-            } finally {
-                sendButton.disabled = false;
-                renderChat();
+        // --- 5. RENDER FUNCTIONS (FOR MOCK DATA) ---
+
+        const renderMovers = (data) => {
+            document.getElementById('gainers-list').innerHTML = data.gainers.map(renderMoverItem).join('');
+            document.getElementById('losers-list').innerHTML = data.losers.map(renderMoverItem).join('');
+        };
+
+        const renderNews = (data) => {
+            // Check for valid data before rendering
+            if (Array.isArray(data.news) && data.news.length > 0) {
+                document.getElementById('news-feed').innerHTML = data.news.map(renderNewsItem).join('');
+            } else {
+                document.getElementById('news-feed').innerHTML = '<p class="text-sm text-gray-500 py-3">No high-priority headlines available.</p>';
             }
         };
 
-        // --- 5. MAIN RENDER FUNCTION ---
-
-        const renderDashboard = () => {
-            // Update time
-            document.getElementById('last-updated').textContent = `Last Update: ${new Date().toLocaleTimeString('en-US')}`;
-
-            // 1. Render Market Movers (Gainers/Losers)
-            const gainersHtml = MOCK_DATA.gainers.slice(0, 25).map(renderMoverItem).join('');
-            document.getElementById('gainers-list').innerHTML = gainersHtml;
-
-            const losersHtml = MOCK_DATA.losers.slice(0, 25).map(renderMoverItem).join('');
-            document.getElementById('losers-list').innerHTML = losersHtml;
-
-            // 2. Render News Feed with custom sorting
-            const priorityOrder = ['Fox Business', 'Yahoo Finance', 'CNBC', 'Bloomberg'];
-
-            const sortNews = (a, b) => {
-                const indexA = priorityOrder.indexOf(a.source);
-                const indexB = priorityOrder.indexOf(b.source);
-
-                const rankA = indexA === -1 ? 999 : indexA;
-                const rankB = indexB === -1 ? 999 : indexB;
-
-                if (rankA !== rankB) {
-                    return rankA - rankB; 
-                }
-                return 0; 
-            };
-            
-            const sortedNews = [...MOCK_DATA.news].sort(sortNews);
-            const newsHtml = sortedNews.map(renderNewsItem).join('');
-            document.getElementById('news-feed').innerHTML = newsHtml;
-
-            // 3. Render Economic Calendar
-            const econHtml = MOCK_DATA.economicCalendar.map(e => renderCalendarItem(e, 'economic')).join('');
-            document.getElementById('economic-calendar').innerHTML = econHtml;
-
-            // 4. Render Earnings Calendar
-            const earningsHtml = MOCK_DATA.earningsCalendar.map(e => renderCalendarItem(e, 'earnings')).join('');
-            document.getElementById('earnings-calendar').innerHTML = earningsHtml;
-
-            // 5. Generate AI Summary (Calls the external API)
-            generateAISummary();
+        const renderCalendars = (data) => {
+            document.getElementById('economic-calendar').innerHTML = data.economicCalendar.map(item => renderCalendarItem(item, 'economic')).join('');
+            document.getElementById('earnings-calendar').innerHTML = data.earningsCalendar.map(item => renderCalendarItem(item, 'earnings')).join('');
         };
 
-        // --- 6. INTERACTION AND AUTOMATION ---
-
-        let autoRefreshInterval;
-
-        const handleRefresh = async () => {
-            const button = document.getElementById('refresh-button');
-            const icon = document.getElementById('refresh-icon');
-            const spinner = document.getElementById('loading-spinner');
-
-            button.disabled = true;
-            icon.classList.add('hidden');
-            spinner.classList.remove('hidden');
-
-            clearInterval(autoRefreshInterval);
-
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            renderDashboard();
-
-            autoRefreshInterval = setInterval(renderDashboard, 30 * 60 * 1000); // 30 minutes
-
-            button.disabled = false;
-            icon.classList.remove('hidden');
-            spinner.classList.add('hidden');
+        const updateLastUpdated = () => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            document.getElementById('last-updated').textContent = `Last Update: ${timeString}`;
         };
 
-        // --- 7. INITIALIZATION ---
+        /**
+         * Toggles the loading state of the dashboard and refresh button.
+         */
+        const toggleLoadingState = (isLoading) => {
+            const refreshButton = document.getElementById('refresh-button');
+            const refreshIcon = document.getElementById('refresh-icon');
+            const loadingSpinner = document.getElementById('loading-spinner');
 
+            refreshButton.disabled = isLoading;
+            if (isLoading) {
+                refreshIcon.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+                refreshButton.querySelector('span').textContent = 'Loading...';
+            } else {
+                loadingSpinner.classList.add('hidden');
+                refreshIcon.classList.remove('hidden');
+                refreshButton.querySelector('span').textContent = 'Refresh';
+            }
+        };
+
+        /**
+         * Main function to initialize and refresh the entire dashboard.
+         */
+        const initDashboard = async () => {
+            toggleLoadingState(true);
+
+            // 1. Generate AI Summary (API call - this is where the fix takes effect)
+            await generateAISummary();
+
+            // 2. Render Mock Data sections
+            renderMovers(MOCK_DATA);
+            renderNews(MOCK_DATA);
+            renderCalendars(MOCK_DATA);
+
+            // 3. Update time and complete loading state
+            updateLastUpdated();
+            toggleLoadingState(false);
+        };
+
+
+        // --- 6. EVENT LISTENERS AND INITIALIZATION ---
         window.onload = () => {
-            // Initial dashboard render
-            renderDashboard();
+            // Initial dashboard load
+            initDashboard();
+            renderChat(); // Render initial chat message
 
-            // Set up auto-refresh (30 minutes)
-            autoRefreshInterval = setInterval(renderDashboard, 30 * 60 * 1000);
+            // Setup Dashboard Refresh Button
+            document.getElementById('refresh-button').addEventListener('click', initDashboard);
 
-            // Set up event listeners for refresh button
-            document.getElementById('refresh-button').addEventListener('click', handleRefresh);
-
-            // Set up event listeners for chat widget
+            // Setup Chat Toggler
             document.getElementById('chat-button').addEventListener('click', toggleChatPanel);
-            
+
+            // Setup Chat Input
             const chatInput = document.getElementById('chat-input');
             const chatSendButton = document.getElementById('chat-send-button');
 
-            // Enable send button only when input has content
             chatInput.addEventListener('input', () => {
-                chatSendButton.disabled = chatInput.value.trim().length === 0;
+                chatSendButton.disabled = chatInput.value.trim() === '';
             });
 
-            // Handle pressing Enter key
-            chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !chatSendButton.disabled) {
+            chatInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && !chatSendButton.disabled) {
                     sendChatMessage();
                 }
             });
 
-            // Handle click on send button
             chatSendButton.addEventListener('click', sendChatMessage);
-            
-            // Initial render of chat history (only the welcome message)
-            renderChat(); 
         };
 
     </script>
