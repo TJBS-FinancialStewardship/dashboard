@@ -77,24 +77,39 @@
             </div>
         </header>
 
-        <!-- Grid Layout for Main Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Grid Layout for Main Content - Now stacked in a single column -->
+        <div class="grid grid-cols-1 gap-6">
 
-            <!-- COLUMN 1 & 2: AI Summary, Calendars, Movers -->
-            <div class="lg:col-span-2 space-y-6">
+            <!-- 1. AI-Generated Market Snapshot (Full Width) -->
+            <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                <h2 class="text-xl font-bold text-ai-blue mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-3 3M15 10v13l3-3M3 6h18M3 10h18M3 14h18M3 18h18"></path></svg>
+                    AI Market Snapshot
+                </h2>
+                <div id="ai-summary-content">
+                    <p class="text-gray-500 italic">Generating real-time intelligence...</p>
+                </div>
+            </section>
 
-                <!-- 2. AI-Generated Market Snapshot -->
-                <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                    <h2 class="text-xl font-bold text-ai-blue mb-3 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-3 3M15 10v13l3-3M3 6h18M3 10h18M3 14h18M3 18h18"></path></svg>
-                        AI Market Snapshot
-                    </h2>
-                    <div id="ai-summary-content">
-                        <p class="text-gray-500 italic">Generating real-time intelligence...</p>
-                    </div>
-                </section>
+            <!-- 2. Financial News Feed (Full Width, NEW LIST DESIGN) -->
+            <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-full">
+                <h2 class="text-xl font-bold text-gray-900 mb-2 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v2m-7 13h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v2M9 13h6"></path></svg>
+                    Financial News Feed
+                </h2>
+                <p class="text-sm text-gray-500 mb-4">High-priority headlines from preferred sources.</p>
+                
+                <!-- Updated: Removed space-y-4 and added divide-y for a clean list look -->
+                <div id="news-feed" class="divide-y divide-gray-100 max-h-[85vh] custom-scrollbar overflow-y-auto pr-2">
+                    <!-- News items will be populated here -->
+                    <p class="text-sm text-gray-500 py-3">Loading news...</p>
+                </div>
+            </section>
+            
+            <!-- Remaining elements grouped for consistent spacing -->
+            <div class="space-y-6">
 
-                <!-- 6. Market Movers -->
+                <!-- 3. Market Movers -->
                 <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
                         <h2 class="text-xl font-bold text-market-green mb-3 flex items-center">
@@ -119,7 +134,7 @@
                     </div>
                 </section>
 
-                <!-- 5. Economic Calendar & 7. Earnings Calendar -->
+                <!-- 4. Economic Calendar & Earnings Calendar -->
                 <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Economic Calendar -->
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
@@ -147,23 +162,8 @@
                         <a href="https://finance.yahoo.com/calendar" target="_blank" class="mt-4 inline-block text-sm text-blue-600 hover:text-blue-800 font-semibold">More from Yahoo Finance &rarr;</a>
                     </div>
                 </section>
-
             </div>
-
-            <!-- COLUMN 3: News Feed -->
-            <div class="lg:col-span-1">
-                <section class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-full">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v2m-7 13h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v2M9 13h6"></path></svg>
-                        Financial News Feed
-                    </h2>
-                    <div id="news-feed" class="space-y-4 max-h-[85vh] custom-scrollbar overflow-y-auto pr-2">
-                        <!-- News items will be populated here -->
-                        <p class="text-sm text-gray-500">Loading news...</p>
-                    </div>
-                </section>
-            </div>
-
+            
         </div>
     </div>
 
@@ -203,6 +203,18 @@
                 { symbol: 'PFE', name: 'Pfizer Inc.', change: -5.00, price: 24.00, marketCap: 150.0 },
                 { symbol: 'INTC', name: 'Intel Corp.', change: -4.50, price: 37.00, marketCap: 155.0 },
             ],
+            // ADDED: Mock data for the news feed to fix the "MOCK_DATA.news is not iterable" error
+            news: [
+                { source: 'Fox Business', title: 'Fed Signals Rate Hike Pause, But Warns of Inflation Resilience', url: 'https://www.foxbusiness.com/markets/fed-signals-rate-hike-pause', color: 'fb-brand', time: '5 mins ago' },
+                { source: 'Yahoo Finance', title: 'Tech Stocks Dive Amidst AI Valuation Fears; NVDA Down 7%', url: 'https://finance.yahoo.com/news/tech-stocks-dive-ai-valuation-140000305.html', color: 'yf-brand', time: '15 mins ago' },
+                { source: 'CNBC', title: 'Kimberly-Clark to Acquire Kenvue in Multi-Billion Dollar Deal', url: 'https://www.cnbc.com/2025/11/05/kimberly-clark-kenvue-acquisition.html', color: 'cnbc-brand', time: '30 mins ago' },
+                { source: 'Bloomberg', title: 'Global Bond Yields Spike to New Highs on Strong Jobs Report', url: 'https://www.bloomberg.com/news/articles/2025-11-05/global-bond-yields-spike', color: 'bloomberg-brand', time: '1 hour ago' },
+                { source: 'Fox Business', title: 'Retail Sales Beat Estimates, Signaling Strong Consumer Spending', url: 'https://www.foxbusiness.com/markets/retail-sales-beat-estimates', color: 'fb-brand', time: '2 hours ago' },
+                { source: 'Yahoo Finance', title: 'Energy Sector Rallies as Crude Oil Jumps Past $90 a Barrel', url: 'https://finance.yahoo.com/news/energy-sector-rallies-crude-oil-160000999.html', color: 'yf-brand', time: '3 hours ago' },
+                { source: 'CNBC', title: 'Boeing Lands Major New Order from Emirates for 777X Jets', url: 'https://www.cnbc.com/2025/11/05/boeing-emirates-order-777x.html', color: 'cnbc-brand', time: '4 hours ago' },
+                { source: 'Bloomberg', title: 'Asian Markets Close Mixed Following Weak Manufacturing Data', url: 'https://www.bloomberg.com/news/articles/2025-11-05/asian-markets-mixed', color: 'bloomberg-brand', time: '5 hours ago' },
+                { source: 'Unknown Source', title: 'Cryptocurrency Exchange Coinbase Reports Record Q3 Profits', url: 'https://example.com/crypto-record', color: 'gray-500', time: '6 hours ago' },
+            ],
             economicCalendar: [
                 { date: 'Nov 8 (Fri)', time: '8:30 AM ET', event: 'Nonfarm Payrolls', forecast: '75K', previous: '79K', impact: 'High' },
                 { date: 'Nov 13 (Wed)', time: '8:30 AM ET', event: 'CPI MoM', forecast: '0.3%', previous: '0.4%', impact: 'High' },
@@ -218,14 +230,6 @@
                 { date: 'Nov 18 (Mon)', time: 'Before Market Open', company: 'Spotify Technology', ticker: 'SPOT', estimate: '$0.92' },
                 { date: 'Nov 21 (Thu)', time: 'After Market Close', company: 'Marathon Petroleum', ticker: 'MPC', estimate: '$4.12' },
                 { date: 'Dec 2 (Mon)', time: 'Before Market Open', company: 'Lowe\'s Cos', ticker: 'LOW', estimate: '$3.01' },
-            ],
-            news: [
-                { source: 'Yahoo Finance', color: 'yf-brand', time: '15m ago', title: 'AI Bubble Fears Resurface as Nvidia, Palantir Lead Tech Sell-off', img: 'https://placehold.co/400x200/6001D2/ffffff?text=AI+Stocks', url: 'https://finance.yahoo.com/news/' },
-                { source: 'Fox Business', color: 'fb-brand', time: '45m ago', title: 'Kimberly-Clark Shares Tumble 12% on Deal to Acquire Kenvue for $48.7 Billion', img: 'https://placehold.co/400x200/CC0000/ffffff?text=KMB/KVUE', url: 'https://www.foxbusiness.com/markets' },
-                { source: 'CNBC', color: 'cnbc-brand', time: '1h ago', title: 'Fed Officials Signal Higher-for-Longer Rates After CPI Report: What it Means for Q4', img: 'https://placehold.co/400x200/3A606E/ffffff?text=Fed+Rates', url: 'https://www.cnbc.com/financial-markets/' },
-                { source: 'Bloomberg', color: 'bloomberg-brand', time: '2h ago', title: 'Solid Power Jumps 53% on New Battery Tech Announcement; Retail Sector Drags on Broader Market', img: 'https://placehold.co/400x200/1F2E7D/ffffff?text=Solid+Power', url: 'https://www.bloomberg.com/markets' },
-                { source: 'Yahoo Finance', color: 'yf-brand', time: '3h ago', title: 'Oil Prices Retreat Amid Fading Supply Concerns; US Benchmark Drops Below $61', img: 'https://placehold.co/400x200/6001D2/ffffff?text=Crude+Oil', url: 'https://finance.yahoo.com/news/' },
-                { source: 'CNBC', color: 'cnbc-brand', time: '5h ago', title: 'Analyst Warning: Over 80% of S&P 500 Companies Beat EPS, but Guidance Remains Cautious', img: 'https://placehold.co/400x200/3A606E/ffffff?text=Earnings+Season', url: 'https://www.cnbc.com/financial-markets/' },
             ]
         };
 
@@ -242,75 +246,95 @@
         };
 
         /**
-         * Renders an individual stock mover item.
+         * Renders an individual stock mover item, now clickable.
          */
         const renderMoverItem = (stock) => {
             const isGainer = stock.change >= 0;
             const colorClass = isGainer ? 'text-market-green bg-green-50' : 'text-market-red bg-red-50';
             const sign = isGainer ? '+' : '';
+            // Link to Yahoo Finance Quote for the ticker
+            const url = `https://finance.yahoo.com/quote/${stock.symbol}`; 
 
             return `
-                <div class="flex justify-between items-center p-2 rounded-lg ${colorClass} transition duration-100 hover:shadow-md">
-                    <div class="flex items-center space-x-2">
-                        <span class="font-mono text-sm font-bold">${stock.symbol}</span>
-                        <span class="text-xs text-gray-700">${stock.name}</span>
-                    </div>
-                    <div class="text-right">
-                        <span class="font-semibold text-sm">${sign}${stock.change.toFixed(2)}%</span>
-                        <span class="block text-xs text-gray-500">${formatMarketCap(stock.marketCap)}</span>
-                    </div>
-                </div>
-            `;
-        };
-
-        /**
-         * Renders an individual news item.
-         */
-        const renderNewsItem = (item) => {
-            return `
-                <a href="${item.url}" target="_blank" class="block group border border-gray-100 rounded-xl shadow-sm hover:shadow-lg transition duration-200">
-                    <div class="relative overflow-hidden rounded-t-xl">
-                        <img src="${item.img}" alt="News Image" class="w-full h-32 object-cover group-hover:scale-[1.02] transition duration-300 onerror="this.onerror=null; this.src='https://placehold.co/400x200/E5E7EB/9CA3AF?text=No+Image';" />
-                    </div>
-                    <div class="p-3">
-                        <p class="text-xs font-semibold uppercase text-${item.color}">${item.source}</p>
-                        <h4 class="text-sm font-bold text-gray-900 mt-1 group-hover:text-ai-blue transition">${item.title}</h4>
-                        <p class="text-xs text-gray-500 mt-2">${item.time} | <span class="text-gray-400">Read More</span></p>
+                <a href="${url}" target="_blank" class="block">
+                    <div class="flex justify-between items-center p-2 rounded-lg ${colorClass} transition duration-100 hover:shadow-md hover:bg-opacity-75">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-mono text-sm font-bold text-gray-900">${stock.symbol}</span>
+                            <span class="text-xs text-gray-700">${stock.name}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-semibold text-sm">${sign}${stock.change.toFixed(2)}%</span>
+                            <span class="block text-xs text-gray-500">${formatMarketCap(stock.marketCap)}</span>
+                        </div>
                     </div>
                 </a>
             `;
         };
 
         /**
-         * Renders an individual calendar event.
+         * Renders an individual news item with the new, compact list design.
+         */
+        const renderNewsItem = (item) => {
+            return `
+                <a href="${item.url}" target="_blank" class="block py-3 px-1 hover:bg-gray-50 transition duration-150">
+                    <div class="flex flex-col md:flex-row md:items-start">
+                        <!-- Source and Time (Left side on desktop, stacked on mobile) -->
+                        <div class="md:w-1/4 flex-shrink-0 mb-1 md:mb-0">
+                            <span class="text-xs font-semibold uppercase text-${item.color} block">${item.source}</span>
+                            <span class="text-xs text-gray-500">${item.time}</span>
+                        </div>
+                        <!-- Title (Main content) -->
+                        <h4 class="md:w-3/4 text-sm font-semibold text-gray-800 leading-snug hover:text-ai-blue transition">
+                            ${item.title}
+                        </h4>
+                    </div>
+                </a>
+            `;
+        };
+
+        /**
+         * Renders an individual calendar event, now with clickable links.
          */
         const renderCalendarItem = (event, type = 'economic') => {
             const impactClass = event.impact === 'High' ? 'bg-market-red text-white' : 'bg-yellow-100 text-yellow-800';
             let detail = '';
+            let url = '#';
+            let primaryText = event.event;
+            let secondaryText = event.date;
 
             if (type === 'economic') {
+                // Link to a Google search for the economic event
+                url = `https://www.google.com/search?q=${encodeURIComponent(event.event + ' data release')}`;
                 detail = `
                     <div class="flex justify-between text-xs mt-1 text-gray-600">
                         <span>F/P: ${event.forecast} / ${event.previous}</span>
                         <span class="px-2 py-0.5 text-xs font-semibold rounded-full ${impactClass}">${event.impact}</span>
                     </div>
                 `;
+                secondaryText = `${event.date} (${event.time.split(' ')[0]})`;
+
             } else if (type === 'earnings') {
+                // Link to the company's earnings calendar on Yahoo Finance
+                url = `https://finance.yahoo.com/quote/${event.ticker}/calendar`;
+                primaryText = `${event.company} (${event.ticker})`;
                 detail = `
                     <div class="flex justify-between text-xs mt-1 text-gray-600">
-                        <span class="font-bold">${event.ticker}</span>
-                        <span>EPS Est: ${event.estimate}</span>
+                        <span class="font-bold">EPS Est: ${event.estimate}</span>
+                        <span>Time: ${event.time}</span>
                     </div>
                 `;
+                secondaryText = `${event.date}`; // Keep only the date here
             }
 
             return `
                 <div class="border-b border-gray-100 pb-2">
-                    <div class="flex justify-between items-center text-sm font-medium">
-                        <span class="text-gray-800">${event.event || event.company}</span>
-                        <span class="text-gray-500">${event.date} (${event.time.split(' ')[0]})</span>
-                    </div>
-                    ${detail}
+                    <a href="${url}" target="_blank" class="block hover:bg-gray-50 p-1 -mx-1 rounded transition duration-150">
+                        <div class="flex justify-between items-center text-sm font-medium">
+                            <span class="text-gray-800 font-semibold hover:text-ai-blue">${primaryText}</span>
+                            <span class="text-gray-500 text-xs">${secondaryText}</span>
+                        </div>
+                        ${detail}
+                    </a>
                 </div>
             `;
         };
@@ -319,7 +343,7 @@
          * Mocks the AI summary generation using the Gemini API.
          * Includes exponential backoff for robustness.
          */
-        const generateAISummary = async (maxRetries = 3) => {
+        const generateAISummary = async (maxRetries = 5) => {
             const contentDiv = document.getElementById('ai-summary-content');
             contentDiv.innerHTML = `<div class="flex items-center space-x-2 text-blue-600">
                 <div class="w-4 h-4 border-2 border-transparent border-t-blue-600 rounded-full spinner"></div>
@@ -388,8 +412,30 @@
             const losersHtml = MOCK_DATA.losers.slice(0, 25).map(renderMoverItem).join('');
             document.getElementById('losers-list').innerHTML = losersHtml;
 
-            // 2. Render News Feed
-            const newsHtml = MOCK_DATA.news.map(renderNewsItem).join('');
+            // 2. Render News Feed with custom sorting
+            
+            // Define the custom priority order
+            const priorityOrder = ['Fox Business', 'Yahoo Finance', 'CNBC', 'Bloomberg'];
+
+            const sortNews = (a, b) => {
+                const indexA = priorityOrder.indexOf(a.source);
+                const indexB = priorityOrder.indexOf(b.source);
+
+                // Assign a very high index for sources not in the priority list (to push them to the end)
+                const rankA = indexA === -1 ? 999 : indexA;
+                const rankB = indexB === -1 ? 999 : indexB;
+
+                if (rankA !== rankB) {
+                    return rankA - rankB; // Sort by priority rank
+                }
+                
+                // Secondary sort: keep original order for articles with the same priority (or if both are unlisted)
+                return 0; 
+            };
+            
+            // The fix was to ensure MOCK_DATA.news exists and is an array.
+            const sortedNews = [...MOCK_DATA.news].sort(sortNews);
+            const newsHtml = sortedNews.map(renderNewsItem).join('');
             document.getElementById('news-feed').innerHTML = newsHtml;
 
             // 3. Render Economic Calendar
